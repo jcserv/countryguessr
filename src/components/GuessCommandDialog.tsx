@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Check, X } from "lucide-react";
+import { Check } from "lucide-react";
 
 import {
   CommandDialog,
@@ -29,12 +29,8 @@ export function GuessCommandDialog({
     selectedCountry,
     submitGuess,
     gameStatus,
-    livesRemaining,
   } = useGameContext();
   const [searchQuery, setSearchQuery] = useState("");
-  const [feedback, setFeedback] = useState<"correct" | "incorrect" | null>(
-    null,
-  );
 
   // Filter countries based on search query, excluding already guessed ones
   // Only show results when user starts typing
@@ -49,28 +45,14 @@ export function GuessCommandDialog({
       return;
     }
 
-    const isCorrect = submitGuess(countryCode);
-
-    if (isCorrect) {
-      setFeedback("correct");
-      setSearchQuery("");
-      setTimeout(() => {
-        setFeedback(null);
-        onOpenChange(false);
-      }, 1000);
-    } else {
-      setFeedback("incorrect");
-      setTimeout(() => {
-        setFeedback(null);
-        onOpenChange(false);
-      }, 1000);
-    }
+    submitGuess(countryCode);
+    setSearchQuery("");
+    onOpenChange(false);
   };
 
   const handleOpenChange = (newOpen: boolean) => {
     if (!newOpen) {
       setSearchQuery("");
-      setFeedback(null);
     }
     onOpenChange(newOpen);
   };
@@ -90,27 +72,6 @@ export function GuessCommandDialog({
       onOpenChange={handleOpenChange}
       shouldFilter={false}
     >
-      {feedback === "correct" && (
-        <div className="bg-green-50 dark:bg-green-950 p-3 border-green-500 border-b">
-          <p className="flex items-center gap-2 font-medium text-green-900 dark:text-green-100 text-sm">
-            <Check className="w-4 h-4" />
-            Correct!
-          </p>
-        </div>
-      )}
-
-      {feedback === "incorrect" && (
-        <div className="bg-red-50 dark:bg-red-950 p-3 border-red-500 border-b">
-          <p className="flex items-center gap-2 font-medium text-red-900 dark:text-red-100 text-sm">
-            <X className="w-4 h-4" />
-            Incorrect!{" "}
-            {livesRemaining > 0
-              ? `${livesRemaining} lives remaining.`
-              : "No lives left!"}
-          </p>
-        </div>
-      )}
-
       <CommandInput
         placeholder={placeholder}
         value={searchQuery}
