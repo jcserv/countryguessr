@@ -261,7 +261,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
       if (isCorrect) {
         setGuessedCountries((prev) => new Set([...prev, selectedCountry]));
-        setSelectedCountry(null);
+        // Keep selectedCountry as-is so keyboard navigation continues from this position
+        // (arrow keys will navigate to nearest unguessed country in that direction)
         return true;
       } else {
         // Wrong guess - lose a life and record the wrong guess

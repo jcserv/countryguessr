@@ -187,7 +187,8 @@ describe("GameContext", () => {
 
       expect(isCorrect!).toBe(true);
       expect(result.current.guessedCountries.has("US")).toBe(true);
-      expect(result.current.selectedCountry).toBeNull();
+      // Selected country stays on the guessed country to support keyboard navigation
+      expect(result.current.selectedCountry).toBe("US");
     });
 
     it("decreases lives on incorrect guess", async () => {
@@ -303,12 +304,18 @@ describe("GameContext", () => {
         result.current.submitGuess("US");
       });
 
-      // Try to select US again
+      // Select a different country first
+      act(() => {
+        result.current.selectCountry("CA");
+      });
+      expect(result.current.selectedCountry).toBe("CA");
+
+      // Try to select US again (already guessed) - should not change selection
       act(() => {
         result.current.selectCountry("US");
       });
 
-      expect(result.current.selectedCountry).toBeNull();
+      expect(result.current.selectedCountry).toBe("CA");
     });
   });
 
