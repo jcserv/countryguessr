@@ -1,3 +1,4 @@
+import { useLocation } from "@tanstack/react-router";
 import { Pause, Timer } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,8 @@ import { cn } from "@/lib/utils";
 
 export function TimerDisplay() {
   const { timeRemaining, gameStatus, pauseGame } = useGameContext();
+  const location = useLocation();
+  const isMainRoute = location.pathname === "/";
 
   if (gameStatus !== "playing" && gameStatus !== "paused") return null;
 
@@ -35,7 +38,7 @@ export function TimerDisplay() {
           {minutes}:{seconds.toString().padStart(2, "0")}
         </span>
       </div>
-      {gameStatus === "playing" && (
+      {gameStatus === "playing" && isMainRoute && (
         <Button
           variant="ghost"
           size="icon"
