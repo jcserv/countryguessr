@@ -20,7 +20,7 @@ export function InstructionsCard() {
             can&apos;t find a country, click the &apos;Random Country&apos;
             button to get a new country you haven&apos;t guessed yet.
           </p>
-          <div className="space-y-2 pt-2 border-t">
+          <div className="hidden md:block space-y-2 pt-2 border-t">
             <h3 className="mb-2 font-medium text-sm">Keyboard Shortcuts</h3>
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Reset View</span>

@@ -41,9 +41,9 @@ function Index() {
       {/* Pause Dialog */}
       <PauseDialog />
 
-      {/* Map Container */}
+      {/* Map Container - order-2 on mobile, order-none on desktop */}
       <div
-        className={`shrink-0 h-[50vh] w-full overflow-hidden rounded-lg border shadow-lg md:h-full md:w-2/3 ${isIdle ? "opacity-50" : ""}`}
+        className={`order-2 md:order-none shrink-0 h-[50vh] w-full overflow-hidden rounded-lg border shadow-lg md:h-full md:w-2/3 ${isIdle ? "opacity-50" : ""}`}
       >
         <GameMap
           dimmed={isIdle}
@@ -51,10 +51,15 @@ function Index() {
         />
       </div>
 
-      {/* Sidebar */}
-      <div className="flex flex-col gap-4 w-full md:w-1/3">
-        <>
+      {/* Sidebar - contents on mobile (children participate in parent flex), normal on desktop */}
+      <div className="contents md:flex md:flex-col md:gap-4 md:w-1/3">
+        {/* Instructions - order-1 on mobile (appears first) */}
+        <div className="order-1 md:order-none">
           <InstructionsCard />
+        </div>
+
+        {/* ProgressCard + Buttons - order-3 on mobile (appears after map) */}
+        <div className="order-3 md:order-none flex flex-col gap-4">
           <ProgressCard />
           <div className="flex gap-2">
             {selectedCountry && (
@@ -82,7 +87,7 @@ function Index() {
             open={guessDialogOpen}
             onOpenChange={setGuessDialogOpen}
           />
-        </>
+        </div>
       </div>
     </div>
   );
