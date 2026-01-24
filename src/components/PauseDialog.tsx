@@ -12,7 +12,7 @@ import {
 import { useGameContext } from "@/contexts/GameContext";
 
 export function PauseDialog() {
-  const { gameStatus, resumeGame } = useGameContext();
+  const { gameStatus, resumeGame, resetGame } = useGameContext();
 
   const isOpen = gameStatus === "paused";
 
@@ -32,9 +32,17 @@ export function PauseDialog() {
           </DialogDescription>
         </DialogHeader>
 
-        <DialogFooter>
+        <DialogFooter className="flex-col gap-2">
           <Button onClick={resumeGame} className="w-full" size="lg">
             Resume
+          </Button>
+          <Button
+            onClick={resetGame}
+            className="w-full"
+            size="lg"
+            variant="destructive"
+          >
+            Restart
           </Button>
         </DialogFooter>
       </DialogContent>
