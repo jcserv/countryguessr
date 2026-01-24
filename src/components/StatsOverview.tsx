@@ -29,6 +29,18 @@ export function StatsOverview({ games, countries }: StatsOverviewProps) {
     [games],
   );
 
+  const highScore = useMemo(
+    () =>
+      games.length > 0 ? Math.max(...games.map((g) => g.correctGuesses)) : 0,
+    [games],
+  );
+
+  const bestTime = useMemo(() => {
+    const wonGames = games.filter((g) => g.result === "won");
+    if (wonGames.length === 0) return null;
+    return Math.min(...wonGames.map((g) => g.timeElapsed));
+  }, [games]);
+
   const countryRates = useMemo(() => {
     if (games.length === 0) return [];
 
@@ -59,7 +71,7 @@ export function StatsOverview({ games, countries }: StatsOverviewProps) {
     <div className="space-y-4 mb-6">
       <h2 className="font-bold text-2xl">Stats Overview</h2>
 
-      {/* Wins and Losses Cards */}
+      {/* Stats Cards */}
       <div className="grid grid-cols-2 gap-4">
         <Card className="border-l-4 border-l-green-500">
           <CardHeader className="p-4 pb-2">
@@ -84,6 +96,42 @@ export function StatsOverview({ games, countries }: StatsOverviewProps) {
             <span className="text-3xl font-bold text-red-600 dark:text-red-400">
               {losses}
             </span>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-yellow-500">
+          <CardHeader className="p-4 pb-2">
+            <CardTitle className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              High Score
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            <span className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
+              {highScore}
+            </span>
+            <span className="text-sm text-zinc-500 dark:text-zinc-400 ml-1">
+              / 178
+            </span>
+          </CardContent>
+        </Card>
+
+        <Card className="border-l-4 border-l-blue-500">
+          <CardHeader className="p-4 pb-2">
+            <CardTitle className="text-sm font-medium text-zinc-500 dark:text-zinc-400">
+              Best Time
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            {bestTime !== null ? (
+              <span className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+                {Math.floor(bestTime / 60)}:
+                {String(bestTime % 60).padStart(2, "0")}
+              </span>
+            ) : (
+              <span className="text-xl text-zinc-400 dark:text-zinc-500">
+                No wins yet
+              </span>
+            )}
           </CardContent>
         </Card>
       </div>
