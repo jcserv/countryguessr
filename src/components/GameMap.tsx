@@ -191,7 +191,7 @@ export function GameMap({
           maxZoom={20}
         />
         <GeoJSON
-          key={`geojson-${guessedCountries.size}-${selectedCountry}`}
+          key={`geojson-${gameStatus}-${guessedCountries.size}-${selectedCountry}`}
           data={geoJsonData}
           style={(feature) => getCountryStyle(feature as CountryFeature)}
           onEachFeature={(feature, layer) =>
