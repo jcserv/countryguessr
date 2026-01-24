@@ -1,4 +1,6 @@
+cypress/screenshots
 # Logs
+
 logs
 *.log
 npm-debug.log*

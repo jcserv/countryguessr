@@ -1,9 +1,14 @@
 import React from "react";
 
+import { createRouter, RouterContextProvider } from "@tanstack/react-router";
+
 import { GameProvider } from "@/contexts/GameContext";
+import { routeTree } from "@/routeTree.gen";
 import type { CountriesGeoJSON } from "@/types/country";
 
 import { TimerDisplay } from "./TimerDisplay";
+
+const router = createRouter({ routeTree });
 
 // Mock country data for GameProvider
 const mockCountriesData: CountriesGeoJSON = {
@@ -45,9 +50,11 @@ describe("TimerDisplay", () => {
 
   it("does not render when game is idle", () => {
     cy.mount(
-      <GameProvider>
-        <TimerDisplay />
-      </GameProvider>,
+      <RouterContextProvider router={router}>
+        <GameProvider>
+          <TimerDisplay />
+        </GameProvider>
+      </RouterContextProvider>,
     );
 
     cy.wait("@getCountries");
