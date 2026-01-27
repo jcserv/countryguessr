@@ -101,13 +101,11 @@ export function filterCountries(
     const longName = normalizeCountryName(country.properties.NAME_LONG);
     const aliases = COUNTRY_ALIASES[code] || [];
 
-    // Check if query matches start of any name or alias
+    // Check if query matches any part of any name or alias
     return (
-      primaryName.startsWith(normalized) ||
-      longName.startsWith(normalized) ||
-      aliases.some((alias) =>
-        normalizeCountryName(alias).startsWith(normalized),
-      )
+      primaryName.includes(normalized) ||
+      longName.includes(normalized) ||
+      aliases.some((alias) => normalizeCountryName(alias).includes(normalized))
     );
   });
 }
