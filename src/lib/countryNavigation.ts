@@ -88,7 +88,8 @@ function normalizeLngDiff(fromLng: number, toLng: number): number {
 
 /**
  * Check if a target point is within the direction cone from the current point.
- * Returns true if the target is in the specified direction (within 90 degrees).
+ * Uses a 120-degree cone (60-degree half-angle) to handle countries with
+ * unusual centroid positions (e.g., US centroid is skewed west due to Alaska).
  */
 function isInDirectionCone(
   current: Centroid,
@@ -103,15 +104,19 @@ function isInDirectionCone(
     return false;
   }
 
+  // Use factor of ~0.577 (tan(30°)) for 120-degree cone
+  // This means primary direction must be at least 0.577x the secondary
+  const coneFactor = 0.577;
+
   switch (direction) {
-    case "right": // East: lngDiff > 0 and |lngDiff| > |latDiff|
-      return lngDiff > 0 && Math.abs(lngDiff) >= Math.abs(latDiff);
-    case "left": // West: lngDiff < 0 and |lngDiff| > |latDiff|
-      return lngDiff < 0 && Math.abs(lngDiff) >= Math.abs(latDiff);
-    case "up": // North: latDiff > 0 and |latDiff| > |lngDiff|
-      return latDiff > 0 && Math.abs(latDiff) >= Math.abs(lngDiff);
-    case "down": // South: latDiff < 0 and |latDiff| > |lngDiff|
-      return latDiff < 0 && Math.abs(latDiff) >= Math.abs(lngDiff);
+    case "right": // East: lngDiff > 0 and within cone
+      return lngDiff > 0 && Math.abs(lngDiff) >= Math.abs(latDiff) * coneFactor;
+    case "left": // West: lngDiff < 0 and within cone
+      return lngDiff < 0 && Math.abs(lngDiff) >= Math.abs(latDiff) * coneFactor;
+    case "up": // North: latDiff > 0 and within cone
+      return latDiff > 0 && Math.abs(latDiff) >= Math.abs(lngDiff) * coneFactor;
+    case "down": // South: latDiff < 0 and within cone
+      return latDiff < 0 && Math.abs(latDiff) >= Math.abs(lngDiff) * coneFactor;
     default:
       return false;
   }

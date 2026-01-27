@@ -72,8 +72,15 @@ export function GameMap({
     const isGuessed = guessedCountries.has(code);
     const isSelected = selectedCountry === code;
 
-    // Three states: guessed (green), selected (pink), default (gray)
-    if (isGuessed) {
+    // Four states: guessed+selected, guessed, selected, default
+    if (isGuessed && isSelected) {
+      return {
+        fillColor: "#22c55e",
+        fillOpacity: 0.7,
+        color: "#000000",
+        weight: 2,
+      };
+    } else if (isGuessed) {
       return {
         fillColor: "#22c55e",
         fillOpacity: 0.7,

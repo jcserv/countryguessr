@@ -56,8 +56,12 @@ export function useKeyboardShortcuts({
         return;
       }
 
-      // Enter: Open guess dialog (when a country is selected)
-      if (event.key === "Enter" && selectedCountry) {
+      // Enter: Open guess dialog (when a country is selected and not already guessed)
+      if (
+        event.key === "Enter" &&
+        selectedCountry &&
+        !guessedCountries.has(selectedCountry)
+      ) {
         event.preventDefault();
         onOpenGuessDialog?.();
         return;
@@ -78,7 +82,7 @@ export function useKeyboardShortcuts({
           selectedCountry,
           direction,
           countryCentroids,
-          guessedCountries,
+          new Set<string>(), // Allow navigation to all countries (including guessed)
         );
         if (nextCountry) {
           selectCountry(nextCountry);

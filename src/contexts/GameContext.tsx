@@ -230,11 +230,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const selectCountry = useCallback(
     (countryCode: string) => {
       if (gameStatus !== "playing") return;
-      if (!guessedCountries.has(countryCode)) {
-        setSelectedCountry(countryCode);
-      }
+      setSelectedCountry(countryCode);
     },
-    [guessedCountries, gameStatus],
+    [gameStatus],
   );
 
   const selectRandomCountry = useCallback(() => {
