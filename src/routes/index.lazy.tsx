@@ -59,7 +59,7 @@ function Index() {
         </div>
 
         {/* ProgressCard + Buttons - order-3 on mobile (appears after map) */}
-        <div className="order-3 md:order-none flex flex-col gap-4">
+        <div className="flex flex-col gap-4 order-3 md:order-none">
           <ProgressCard />
           <div className="flex gap-2">
             {selectedCountry && (
@@ -77,11 +77,14 @@ function Index() {
           </div>
           <div className="flex justify-center">
             <p className="text-muted-foreground text-sm">
-              Heavily inspired by{" "}
-              <a className="underline" href="https://challenge.elsewhere.to/">
-                The Elsewhere Challenge
-              </a>
-            </p>
+              Made by Jarrod Servilla, heavily inspired by
+            </p>{" "}
+            <a
+              className="ml-1 text-sm underline"
+              href="https://challenge.elsewhere.to/"
+            >
+              The Elsewhere Challenge
+            </a>
           </div>
           <GuessCommandDialog
             open={guessDialogOpen}
