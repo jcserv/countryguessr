@@ -88,6 +88,13 @@ body {
   overflow-x: hidden;
 }
 
+/* Hide vertical scrollbar on larger viewports (14" laptop and up) */
+@media (min-height: 800px) {
+  body {
+    overflow-y: hidden;
+  }
+}
+
 section {
   height: 100vh;
 }

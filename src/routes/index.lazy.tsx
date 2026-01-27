@@ -53,38 +53,49 @@ function Index() {
 
       {/* Sidebar - contents on mobile (children participate in parent flex), normal on desktop */}
       <div className="contents md:flex md:flex-col md:gap-4 md:w-1/3">
-        {/* Instructions - order-1 on mobile (appears first) */}
-        <div className="order-1 md:order-none">
+        {/* Cards area - order-1 on mobile, fills available space on desktop */}
+        <div className="order-1 md:order-none md:flex-1 md:overflow-y-auto md:space-y-4 md:min-h-0">
           <InstructionsCard />
+          <div className="hidden md:block">
+            <ProgressCard />
+          </div>
         </div>
 
         {/* ProgressCard + Buttons - order-3 on mobile (appears after map) */}
-        <div className="flex flex-col gap-4 order-3 md:order-none">
-          <ProgressCard />
-          <div className="flex gap-2">
-            {selectedCountry && (
-              <Button
-                className="flex-1"
-                onClick={() => setGuessDialogOpen(true)}
-                variant="default"
-              >
-                Guess
-              </Button>
-            )}
-            <Button variant="destructive" onClick={endGame} className="flex-1">
-              End Quiz
-            </Button>
+        <div className="flex flex-col gap-4 order-3 md:order-none md:shrink-0">
+          <div className="md:hidden">
+            <ProgressCard />
           </div>
-          <div className="flex justify-center">
-            <p className="text-muted-foreground text-sm">
-              Made by Jarrod Servilla, heavily inspired by
-            </p>{" "}
-            <a
-              className="ml-1 text-sm underline"
-              href="https://challenge.elsewhere.to/"
-            >
-              The Elsewhere Challenge
-            </a>
+          <div className="flex flex-col gap-1">
+            <div className="flex gap-2">
+              {selectedCountry && (
+                <Button
+                  className="flex-1"
+                  onClick={() => setGuessDialogOpen(true)}
+                  variant="default"
+                >
+                  Guess
+                </Button>
+              )}
+              <Button
+                variant="destructive"
+                onClick={endGame}
+                className="flex-1"
+              >
+                End Quiz
+              </Button>
+            </div>
+            <div className="flex justify-center">
+              <p className="text-muted-foreground text-sm">
+                Made by Jarrod Servilla, heavily inspired by
+              </p>{" "}
+              <a
+                className="ml-1 text-sm underline"
+                href="https://challenge.elsewhere.to/"
+              >
+                The Elsewhere Challenge
+              </a>
+            </div>
           </div>
           <GuessCommandDialog
             open={guessDialogOpen}
