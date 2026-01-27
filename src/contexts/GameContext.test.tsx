@@ -285,7 +285,7 @@ describe("GameContext", () => {
       expect(result.current.selectedCountry).toBe("US");
     });
 
-    it("does not allow selection of already guessed country", async () => {
+    it("allows selection of already guessed country", async () => {
       const { result } = renderHook(() => useGameContext(), { wrapper });
 
       await waitFor(() => {
@@ -310,12 +310,12 @@ describe("GameContext", () => {
       });
       expect(result.current.selectedCountry).toBe("CA");
 
-      // Try to select US again (already guessed) - should not change selection
+      // Select US again (already guessed) - should allow selection for navigation
       act(() => {
         result.current.selectCountry("US");
       });
 
-      expect(result.current.selectedCountry).toBe("CA");
+      expect(result.current.selectedCountry).toBe("US");
     });
   });
 

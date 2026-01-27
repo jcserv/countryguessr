@@ -21,7 +21,7 @@ export function InstructionsCard() {
             button to get a new country you haven&apos;t guessed yet.
           </p>
           <div className="hidden md:block space-y-2 pt-2 border-t">
-            <h3 className="mb-2 font-medium text-sm">Keyboard Shortcuts</h3>
+            <h3 className="mb-2 font-medium text-sm">Controls</h3>
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Reset View</span>
               <kbd className="bg-muted px-2 py-0.5 rounded font-mono text-xs">
@@ -35,9 +35,21 @@ export function InstructionsCard() {
               </kbd>
             </div>
             <div className="flex justify-between items-center">
+              <span className="text-muted-foreground">Select</span>
+              <kbd className="bg-muted px-2 py-0.5 rounded font-mono text-xs">
+                Click
+              </kbd>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-muted-foreground">Navigate</span>
+              <kbd className="bg-muted px-2 py-0.5 rounded font-mono text-xs">
+                ←/→/↑/↓
+              </kbd>
+            </div>
+            <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Guess</span>
               <kbd className="bg-muted px-2 py-0.5 rounded font-mono text-xs">
-                Enter
+                Enter / Double Click
               </kbd>
             </div>
           </div>
