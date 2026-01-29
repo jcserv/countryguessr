@@ -209,6 +209,11 @@ export function GameMap({
         zoom={3}
         minZoom={3}
         maxZoom={6}
+        maxBounds={[
+          [-85, -180],
+          [85, 180],
+        ]}
+        maxBoundsViscosity={1.0}
         scrollWheelZoom={true}
         doubleClickZoom={false}
         keyboard={false}
