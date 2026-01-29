@@ -100,3 +100,13 @@ section {
 .leaflet-interactive:focus {
   outline: none !important;
 }
+
+/* Prevent text selection during long press on map elements */
+.leaflet-container,
+.leaflet-pane,
+.leaflet-interactive {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+}

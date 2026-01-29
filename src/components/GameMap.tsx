@@ -207,7 +207,7 @@ export function GameMap({
       <MapContainer
         center={[20, 0]}
         zoom={3}
-        minZoom={3}
+        minZoom={2}
         maxZoom={6}
         maxBounds={[
           [-85, -180],

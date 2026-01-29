@@ -14,7 +14,7 @@ export function StartScreen() {
   const { startGame, countries } = useGameContext();
 
   return (
-    <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <Card className="mx-4 max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="flex items-center justify-center gap-2 text-2xl">

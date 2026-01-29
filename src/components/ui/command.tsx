@@ -59,7 +59,7 @@ const CommandInput = React.forwardRef<
     <CommandPrimitive.Input
       ref={ref}
       className={cn(
-        "flex bg-transparent disabled:opacity-50 py-3 rounded-md outline-none w-full h-11 dark:placeholder:text-zinc-400 placeholder:text-zinc-500 text-sm disabled:cursor-not-allowed",
+        "flex bg-transparent disabled:opacity-50 py-3 rounded-md outline-none w-full h-11 dark:placeholder:text-zinc-400 placeholder:text-zinc-500 text-base disabled:cursor-not-allowed",
         className,
       )}
       {...props}
