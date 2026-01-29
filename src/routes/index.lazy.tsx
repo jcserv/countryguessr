@@ -86,7 +86,11 @@ function Index() {
               </Button>
             </div>
             <p className="text-muted-foreground text-sm text-center">
-              Made by Jarrod Servilla, heavily inspired by{" "}
+              Made by{" "}
+              <a className="underline" href="https://jarrodservilla.com">
+                Jarrod Servilla
+              </a>
+              , heavily inspired by{" "}
               <a className="underline" href="https://challenge.elsewhere.to/">
                 The Elsewhere Challenge
               </a>
