@@ -4,6 +4,7 @@ import { GeoJSON, MapContainer, TileLayer, useMap } from "react-leaflet";
 import L from "leaflet";
 
 import { MapControls } from "@/components/MapControls";
+import { SmallCountryCircles } from "@/components/SmallCountryCircles";
 import { useGameContext } from "@/contexts/GameContext";
 import { getCountryFlagEmoji } from "@/lib/utils";
 import type { CountryFeature } from "@/types/country";
@@ -205,6 +206,7 @@ export function GameMap({
             onEachFeature(feature as CountryFeature, layer)
           }
         />
+        <SmallCountryCircles onCountryDoubleClick={onCountryDoubleClick} />
       </MapContainer>
     </div>
   );

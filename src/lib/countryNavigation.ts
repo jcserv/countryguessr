@@ -1,5 +1,7 @@
 import type { CountryFeature } from "@/types/country";
 
+export const SMALL_COUNTRY_CIRCLES = ["SG", "MT", "SC"] as const;
+
 export type Direction = "up" | "down" | "left" | "right";
 
 export interface Centroid {
