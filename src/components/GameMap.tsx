@@ -6,6 +6,7 @@ import L from "leaflet";
 import { MapControls } from "@/components/MapControls";
 import { SmallCountryCircles } from "@/components/SmallCountryCircles";
 import { useGameContext } from "@/contexts/GameContext";
+import { attachLongPressToLayer } from "@/hooks/useLongPress";
 import { getCountryFlagEmoji } from "@/lib/utils";
 import type { CountryFeature } from "@/types/country";
 
@@ -65,104 +66,128 @@ export function GameMap({
     [countries],
   );
 
-  // Style function for countries
-  const getCountryStyle = (feature: CountryFeature | undefined) => {
-    if (!feature) return {};
+  // Style function for countries - memoized to prevent react-leaflet from
+  // re-applying styles on every render (which would reset hover styles)
+  const getCountryStyle = useCallback(
+    (feature: CountryFeature | undefined) => {
+      if (!feature) return {};
 
-    const code = feature.properties.ISO_A2;
-    const isGuessed = guessedCountries.has(code);
-    const isSelected = selectedCountry === code;
+      const code = feature.properties.ISO_A2;
+      const isGuessed = guessedCountries.has(code);
+      const isSelected = selectedCountry === code;
 
-    // Four states: guessed+selected, guessed, selected, default
-    if (isGuessed && isSelected) {
-      return {
-        fillColor: "#22c55e",
-        fillOpacity: 0.7,
-        color: "#000000",
-        weight: 2,
-      };
-    } else if (isGuessed) {
-      return {
-        fillColor: "#22c55e",
-        fillOpacity: 0.7,
-        color: "#1f2937",
-        weight: 1,
-      };
-    } else if (isSelected) {
-      return {
-        fillColor: "#ec4899",
-        fillOpacity: 0.7,
-        color: "#1f2937",
-        weight: 2,
-      };
-    } else {
-      return {
-        fillColor: "#e5e7eb",
-        fillOpacity: 0.3,
-        color: "#1f2937",
-        weight: 1,
-      };
-    }
-  };
+      // Four states: guessed+selected, guessed, selected, default
+      if (isGuessed && isSelected) {
+        return {
+          fillColor: "#22c55e",
+          fillOpacity: 0.7,
+          color: "#000000",
+          weight: 2,
+        };
+      } else if (isGuessed) {
+        return {
+          fillColor: "#22c55e",
+          fillOpacity: 0.7,
+          color: "#1f2937",
+          weight: 1,
+        };
+      } else if (isSelected) {
+        return {
+          fillColor: "#ec4899",
+          fillOpacity: 0.7,
+          color: "#1f2937",
+          weight: 2,
+        };
+      } else {
+        return {
+          fillColor: "#e5e7eb",
+          fillOpacity: 0.3,
+          color: "#1f2937",
+          weight: 1,
+        };
+      }
+    },
+    [guessedCountries, selectedCountry],
+  );
 
-  // Handler for each feature (country polygon)
-  const onEachFeature = (feature: CountryFeature, layer: L.Layer) => {
-    const code = feature.properties.ISO_A2;
-    const name = feature.properties.NAME;
+  // Handler for each feature (country polygon) - memoized for stable reference
+  const onEachFeature = useCallback(
+    (feature: CountryFeature, layer: L.Layer) => {
+      const code = feature.properties.ISO_A2;
+      const name = feature.properties.NAME;
 
-    // Disable default outline on focus
-    if (layer instanceof L.Path) {
-      layer.options.interactive = true;
-      (layer as PathWithElement)._path?.setAttribute("outline", "none");
-    }
+      // Disable default outline on focus
+      if (layer instanceof L.Path) {
+        layer.options.interactive = true;
+        (layer as PathWithElement)._path?.setAttribute("outline", "none");
+      }
 
-    // Add click handler
-    layer.on({
-      click: () => {
-        if (gameStatus === "playing") {
-          selectCountry(code);
-        }
-      },
-      dblclick: () => {
-        if (
-          gameStatus === "playing" &&
-          selectedCountry === code &&
-          onCountryDoubleClick
-        ) {
-          onCountryDoubleClick();
-        }
-      },
-      mouseover: (e) => {
-        if (gameStatus !== "playing") return;
-        const target = e.target;
-        const isSelected = selectedCountry === code;
-        if (!guessedCountries.has(code) && !isSelected) {
-          target.setStyle({
-            fillColor: "#fbbf24",
-            fillOpacity: 0.5,
-          });
-        }
-      },
-      mouseout: (e) => {
-        if (gameStatus !== "playing") return;
-        const target = e.target;
-        const isSelected = selectedCountry === code;
-        if (!guessedCountries.has(code) && !isSelected) {
-          target.setStyle(getCountryStyle(feature));
-        }
-      },
-    });
-
-    // Only show country name tooltip if it's been guessed correctly
-    if (guessedCountries.has(code)) {
-      const flagEmoji = getCountryFlagEmoji(code);
-      const tooltipContent = flagEmoji ? `${flagEmoji} ${name}` : name;
-      layer.bindTooltip(tooltipContent, {
-        sticky: true,
-        direction: "top",
+      // Add click handler
+      layer.on({
+        click: () => {
+          if (gameStatus === "playing") {
+            selectCountry(code);
+          }
+        },
+        dblclick: () => {
+          if (
+            gameStatus === "playing" &&
+            selectedCountry === code &&
+            onCountryDoubleClick
+          ) {
+            onCountryDoubleClick();
+          }
+        },
+        mouseover: (e) => {
+          if (gameStatus !== "playing") return;
+          const target = e.target;
+          const isSelected = selectedCountry === code;
+          if (!guessedCountries.has(code) && !isSelected) {
+            target.setStyle({
+              fillColor: "#fbbf24",
+              fillOpacity: 0.5,
+            });
+          }
+        },
+        mouseout: (e) => {
+          if (gameStatus !== "playing") return;
+          const target = e.target;
+          const isSelected = selectedCountry === code;
+          if (!guessedCountries.has(code) && !isSelected) {
+            target.setStyle(getCountryStyle(feature));
+          }
+        },
       });
-    }
-  };
+
+      // Add long-press handler for mobile/desktop
+      attachLongPressToLayer(layer, {
+        onLongPress: () => {
+          if (gameStatus === "playing" && onCountryDoubleClick) {
+            selectCountry(code);
+            onCountryDoubleClick();
+          }
+        },
+      });
+
+      // Only show country name tooltip if it's been guessed correctly
+      if (guessedCountries.has(code)) {
+        const flagEmoji = getCountryFlagEmoji(code);
+        const tooltipContent = flagEmoji ? `${flagEmoji} ${name}` : name;
+        layer.bindTooltip(tooltipContent, {
+          sticky: true,
+          direction: "top",
+        });
+      }
+    },
+    [
+      gameStatus,
+      selectedCountry,
+      guessedCountries,
+      selectCountry,
+      onCountryDoubleClick,
+      getCountryStyle,
+    ],
+  );
 
   const handleResetView = useCallback(() => {
     resetViewRef.current?.();
@@ -201,10 +226,8 @@ export function GameMap({
         <GeoJSON
           key={`geojson-${gameStatus}-${guessedCountries.size}-${selectedCountry}`}
           data={geoJsonData}
-          style={(feature) => getCountryStyle(feature as CountryFeature)}
-          onEachFeature={(feature, layer) =>
-            onEachFeature(feature as CountryFeature, layer)
-          }
+          style={getCountryStyle as L.StyleFunction}
+          onEachFeature={onEachFeature as L.GeoJSONOptions["onEachFeature"]}
         />
         <SmallCountryCircles onCountryDoubleClick={onCountryDoubleClick} />
       </MapContainer>

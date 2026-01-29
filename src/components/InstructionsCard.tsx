@@ -43,13 +43,13 @@ export function InstructionsCard() {
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Navigate</span>
               <kbd className="bg-muted px-2 py-0.5 rounded font-mono text-xs">
-                ←/→/↑/↓
+                ←/↑/↓/→
               </kbd>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-muted-foreground">Guess</span>
               <kbd className="bg-muted px-2 py-0.5 rounded font-mono text-xs">
-                Enter / Double Click
+                Enter / Double Click / Long Press
               </kbd>
             </div>
           </div>
