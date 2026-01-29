@@ -26,6 +26,7 @@ function Index() {
   useTimer();
   useKeyboardShortcuts({
     onOpenGuessDialog: () => setGuessDialogOpen(true),
+    isDialogOpen: guessDialogOpen,
   });
 
   const isIdle = gameStatus === "idle";

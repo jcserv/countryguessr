@@ -30,7 +30,15 @@ const CommandDialog = ({
 }: DialogProps & { shouldFilter?: boolean }) => {
   return (
     <Dialog {...props}>
-      <DialogContent className="shadow-lg p-0 overflow-hidden">
+      <DialogContent
+        className="shadow-lg p-0 overflow-hidden"
+        onKeyDown={(e) => {
+          // Prevent Escape from propagating to global handlers
+          if (e.key === "Escape") {
+            e.stopPropagation();
+          }
+        }}
+      >
         <Command
           shouldFilter={shouldFilter}
           className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-zinc-500 [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5 dark:[&_[cmdk-group-heading]]:text-zinc-400"

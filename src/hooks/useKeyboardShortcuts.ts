@@ -9,11 +9,13 @@ import {
 interface UseKeyboardShortcutsOptions {
   onResetView?: () => void;
   onOpenGuessDialog?: () => void;
+  isDialogOpen?: boolean;
 }
 
 export function useKeyboardShortcuts({
   onResetView,
   onOpenGuessDialog,
+  isDialogOpen,
 }: UseKeyboardShortcutsOptions = {}) {
   const {
     selectRandomCountry,
@@ -48,8 +50,12 @@ export function useKeyboardShortcuts({
         return;
       }
 
-      // Escape: Reset map view
-      if (event.key === "Escape") {
+      // Escape: Reset map view (only if no dialog is open)
+      // Check both the state and if the target is inside a dialog element
+      const isInDialog = (event.target as HTMLElement).closest(
+        '[role="dialog"]',
+      );
+      if (event.key === "Escape" && !isDialogOpen && !isInDialog) {
         event.preventDefault();
         resetMapView();
         onResetView?.();
@@ -102,5 +108,6 @@ export function useKeyboardShortcuts({
     selectCountry,
     countryCentroids,
     guessedCountries,
+    isDialogOpen,
   ]);
 }
