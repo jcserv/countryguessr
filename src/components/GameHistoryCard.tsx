@@ -35,6 +35,14 @@ function formatDuration(seconds: number): string {
   return `${mins}:${secs.toString().padStart(2, "0")}`;
 }
 
+function formatTimeElapsed(seconds: number): string {
+  // If time exceeds max game time, it's corrupted data from before the fix
+  if (seconds > GAME_CONFIG.INITIAL_TIME_SECONDS) {
+    return "Unknown";
+  }
+  return formatDuration(seconds);
+}
+
 function formatTotalTime(): string {
   return formatDuration(GAME_CONFIG.INITIAL_TIME_SECONDS);
 }
@@ -116,7 +124,7 @@ export function GameHistoryCard({ game }: GameHistoryCardProps) {
           <div className="flex items-center gap-1">
             <span className="text-zinc-500 dark:text-zinc-400">Time:</span>
             <span className="font-mono">
-              {formatDuration(game.timeElapsed)} / {formatTotalTime()}
+              {formatTimeElapsed(game.timeElapsed)} / {formatTotalTime()}
             </span>
           </div>
           <div className="flex items-center gap-1">

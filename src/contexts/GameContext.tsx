@@ -119,12 +119,46 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
     const savedGame = loadCurrentGame();
     if (savedGame && savedGame.status === "playing") {
-      setGuessedCountries(new Set(savedGame.guessedCountryCodes));
-      setLivesRemaining(savedGame.livesRemaining);
-      setTimeRemaining(savedGame.timeRemaining);
-      setGameStartedAt(savedGame.startedAt);
-      setWrongGuesses(savedGame.wrongGuesses || []);
-      setGameStatus("playing");
+      // Calculate time elapsed since the game was last saved
+      const timeSinceSave = (Date.now() - savedGame.savedAt) / 1000;
+      const adjustedTimeRemaining = savedGame.timeRemaining - timeSinceSave;
+
+      if (adjustedTimeRemaining <= 0) {
+        // Time expired while away - auto-end as loss
+        clearCurrentGame();
+
+        // Calculate timeElapsed capped at max time
+        const timeElapsed = Math.min(
+          Math.floor((Date.now() - savedGame.startedAt) / 1000),
+          GAME_CONFIG.INITIAL_TIME_SECONDS,
+        );
+
+        saveCompletedGame({
+          completedAt: Date.now(),
+          result: "lost",
+          correctGuesses: savedGame.guessedCountryCodes.length,
+          totalCountries: countries.length,
+          timeElapsed,
+          livesRemaining: savedGame.livesRemaining,
+          guessedCountryCodes: savedGame.guessedCountryCodes,
+          wrongGuesses: savedGame.wrongGuesses || [],
+        });
+
+        setGuessedCountries(new Set(savedGame.guessedCountryCodes));
+        setLivesRemaining(savedGame.livesRemaining);
+        setTimeRemaining(0);
+        setGameStartedAt(savedGame.startedAt);
+        setWrongGuesses(savedGame.wrongGuesses || []);
+        setGameStatus("lost");
+      } else {
+        // Resume with adjusted time
+        setGuessedCountries(new Set(savedGame.guessedCountryCodes));
+        setLivesRemaining(savedGame.livesRemaining);
+        setTimeRemaining(Math.floor(adjustedTimeRemaining));
+        setGameStartedAt(savedGame.startedAt);
+        setWrongGuesses(savedGame.wrongGuesses || []);
+        setGameStatus("playing");
+      }
     }
     hasLoadedFromStorage.current = true;
   }, [loading, countries.length]);
@@ -134,12 +168,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
     if (gameStatus !== "playing" || !hasLoadedFromStorage.current) return;
 
     const state: StoredGameState = {
-      version: 1,
+      version: 2,
       status: "playing",
       guessedCountryCodes: Array.from(guessedCountries),
       livesRemaining,
       timeRemaining,
       startedAt: gameStartedAt || Date.now(),
+      savedAt: Date.now(),
       wrongGuesses,
     };
     saveCurrentGame(state);
@@ -175,10 +210,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setGameStatus(result);
       clearCurrentGame();
 
-      // Save to history
-      const timeElapsed = gameStartedAt
+      // Save to history - cap timeElapsed at max game time
+      const rawTimeElapsed = gameStartedAt
         ? Math.floor((Date.now() - gameStartedAt) / 1000)
         : GAME_CONFIG.INITIAL_TIME_SECONDS - timeRemaining;
+      const timeElapsed = Math.min(
+        rawTimeElapsed,
+        GAME_CONFIG.INITIAL_TIME_SECONDS,
+      );
 
       saveCompletedGame({
         completedAt: Date.now(),

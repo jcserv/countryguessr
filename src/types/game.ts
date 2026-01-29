@@ -37,14 +37,26 @@ export interface WrongGuess {
   actualCode: string; // What the correct answer was
 }
 
-// localStorage schema
-export interface StoredGameState {
+// localStorage schema for v1 (legacy)
+export interface StoredGameStateV1 {
   version: 1;
   status: "playing";
   guessedCountryCodes: string[];
   livesRemaining: number;
   timeRemaining: number;
   startedAt: number;
+  wrongGuesses: WrongGuess[];
+}
+
+// localStorage schema for v2 (current)
+export interface StoredGameState {
+  version: 2;
+  status: "playing";
+  guessedCountryCodes: string[];
+  livesRemaining: number;
+  timeRemaining: number;
+  startedAt: number;
+  savedAt: number;
   wrongGuesses: WrongGuess[];
 }
 

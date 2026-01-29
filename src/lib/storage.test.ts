@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CompletedGame, StoredGameState } from "@/types/game";
+import type {
+  CompletedGame,
+  StoredGameState,
+  StoredGameStateV1,
+} from "@/types/game";
 import { STORAGE_KEYS } from "@/types/game";
 
 import {
@@ -21,13 +25,15 @@ describe("storage", () => {
 
   describe("saveCurrentGame", () => {
     it("saves game state correctly", () => {
+      const now = Date.now();
       const state: StoredGameState = {
-        version: 1,
+        version: 2,
         status: "playing",
         guessedCountryCodes: ["US", "GB"],
         livesRemaining: 2,
         timeRemaining: 1500,
-        startedAt: Date.now(),
+        startedAt: now,
+        savedAt: now,
         wrongGuesses: [{ guessedCode: "CA", actualCode: "US" }],
       };
 
@@ -47,13 +53,15 @@ describe("storage", () => {
         throw new Error("Storage quota exceeded");
       });
 
+      const now = Date.now();
       const state: StoredGameState = {
-        version: 1,
+        version: 2,
         status: "playing",
         guessedCountryCodes: [],
         livesRemaining: 3,
         timeRemaining: 1800,
-        startedAt: Date.now(),
+        startedAt: now,
+        savedAt: now,
         wrongGuesses: [],
       };
 
@@ -70,20 +78,47 @@ describe("storage", () => {
       expect(result).toBeNull();
     });
 
-    it("returns stored game state when valid", () => {
+    it("returns stored game state when valid v2", () => {
+      const now = Date.now();
       const state: StoredGameState = {
-        version: 1,
+        version: 2,
         status: "playing",
         guessedCountryCodes: ["US"],
         livesRemaining: 3,
         timeRemaining: 1000,
-        startedAt: Date.now(),
+        startedAt: now,
+        savedAt: now,
         wrongGuesses: [],
       };
       localStorage.setItem(STORAGE_KEYS.CURRENT_GAME, JSON.stringify(state));
 
       const result = loadCurrentGame();
       expect(result).toEqual(state);
+    });
+
+    it("migrates v1 to v2 format", () => {
+      const now = Date.now();
+      const v1State: StoredGameStateV1 = {
+        version: 1,
+        status: "playing",
+        guessedCountryCodes: ["US"],
+        livesRemaining: 3,
+        timeRemaining: 1000,
+        startedAt: now,
+        wrongGuesses: [],
+      };
+      localStorage.setItem(STORAGE_KEYS.CURRENT_GAME, JSON.stringify(v1State));
+
+      const result = loadCurrentGame();
+
+      expect(result).not.toBeNull();
+      expect(result!.version).toBe(2);
+      expect(result!.savedAt).toBeDefined();
+      expect(result!.guessedCountryCodes).toEqual(["US"]);
+      expect(result!.livesRemaining).toBe(3);
+      expect(result!.timeRemaining).toBe(1000);
+      // Verify it was saved back
+      expect(localStorage.setItem).toHaveBeenCalled();
     });
 
     it("returns null and clears for unknown version", () => {

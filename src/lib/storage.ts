@@ -5,6 +5,7 @@ import type {
   GameHistory,
   GameHistoryV1,
   StoredGameState,
+  StoredGameStateV1,
 } from "@/types/game";
 import { STORAGE_KEYS } from "@/types/game";
 
@@ -20,6 +21,17 @@ export function saveCurrentGame(state: StoredGameState): void {
 }
 
 /**
+ * Migrates a v1 game state to v2 format
+ */
+function migrateGameStateV1ToV2(state: StoredGameStateV1): StoredGameState {
+  return {
+    ...state,
+    version: 2,
+    savedAt: Date.now(),
+  };
+}
+
+/**
  * Loads the current game state from localStorage
  */
 export function loadCurrentGame(): StoredGameState | null {
@@ -27,16 +39,25 @@ export function loadCurrentGame(): StoredGameState | null {
     const stored = localStorage.getItem(STORAGE_KEYS.CURRENT_GAME);
     if (!stored) return null;
 
-    const parsed = JSON.parse(stored) as StoredGameState;
+    const parsed = JSON.parse(stored);
+
+    // Handle v1 migration
+    if (parsed.version === 1) {
+      const v1State = parsed as StoredGameStateV1;
+      const v2State = migrateGameStateV1ToV2(v1State);
+      // Save migrated state
+      saveCurrentGame(v2State);
+      return v2State;
+    }
 
     // Validate version
-    if (parsed.version !== 1) {
+    if (parsed.version !== 2) {
       console.warn("Unknown game state version, clearing");
       clearCurrentGame();
       return null;
     }
 
-    return parsed;
+    return parsed as StoredGameState;
   } catch (error) {
     console.error("Failed to load current game:", error);
     return null;
