@@ -20,6 +20,7 @@
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-dropdown-menu": "^2.1.16",
     "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-tooltip": "^1.2.8",
     "@tanstack/react-router": "^1.151.6",
     "class-variance-authority": "^0.5.3",
     "clsx": "^1.2.1",

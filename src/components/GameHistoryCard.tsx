@@ -4,10 +4,19 @@ import { ChevronDown, ChevronUp, Eye, EyeOff } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useGameContext } from "@/contexts/GameContext";
-import { calculateRegionProgress } from "@/lib/regionMapping";
+import {
+  calculateRegionProgress,
+  groupCountriesByRegion,
+} from "@/lib/regionMapping";
 import { cn, getCountryFlagEmoji } from "@/lib/utils";
-import type { CompletedGame } from "@/types/game";
+import type { CompletedGame, GameRegion } from "@/types/game";
 import { GAME_CONFIG } from "@/types/game";
 
 interface GameHistoryCardProps {
@@ -51,7 +60,9 @@ export function GameHistoryCard({ game }: GameHistoryCardProps) {
   const { countries } = useGameContext();
   const [expanded, setExpanded] = useState(false);
   const [showWrongGuesses, setShowWrongGuesses] = useState(false);
-  const [showUnguessedCountries, setShowUnguessedCountries] = useState(false);
+  const [revealedRegions, setRevealedRegions] = useState<Set<GameRegion>>(
+    new Set(),
+  );
 
   const hasDetailedData =
     game.guessedCountryCodes.length > 0 || game.wrongGuesses.length > 0;
@@ -66,10 +77,25 @@ export function GameHistoryCard({ game }: GameHistoryCardProps) {
     return calculateRegionProgress(countries, guessedSet);
   }, [countries, guessedSet, hasDetailedData]);
 
-  const unguessedCountries = useMemo(() => {
-    if (!hasDetailedData || countries.length === 0) return [];
-    return countries.filter((c) => !guessedSet.has(c.properties.ISO_A2));
+  const unguessedByRegion = useMemo(() => {
+    if (!hasDetailedData || countries.length === 0)
+      return new Map<GameRegion, typeof countries>();
+    return groupCountriesByRegion(
+      countries.filter((c) => !guessedSet.has(c.properties.ISO_A2)),
+    );
   }, [countries, guessedSet, hasDetailedData]);
+
+  const toggleRegionReveal = (region: GameRegion) => {
+    setRevealedRegions((prev) => {
+      const next = new Set(prev);
+      if (next.has(region)) {
+        next.delete(region);
+      } else {
+        next.add(region);
+      }
+      return next;
+    });
+  };
 
   const guessedCountriesList = useMemo(() => {
     if (!hasDetailedData || countries.length === 0) return [];
@@ -159,32 +185,76 @@ export function GameHistoryCard({ game }: GameHistoryCardProps) {
               <div>
                 <h4 className="font-semibold mb-2 text-sm">Region Progress</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {regionProgress.map((region) => (
-                    <div
-                      key={region.region}
-                      className="flex items-center gap-2"
-                    >
-                      <div className="flex-1">
-                        <div className="flex justify-between text-xs mb-1">
-                          <span>{region.region}</span>
-                          <span>
-                            {region.guessed}/{region.total}
-                          </span>
+                  {regionProgress.map((region) => {
+                    const unguessedInRegion =
+                      unguessedByRegion.get(region.region) || [];
+                    const isRevealed = revealedRegions.has(region.region);
+                    return (
+                      <div key={region.region} className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1">
+                            <div className="flex justify-between text-xs mb-1">
+                              <span>{region.region}</span>
+                              <span>
+                                {region.guessed}/{region.total}
+                              </span>
+                            </div>
+                            <div className="h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
+                              <div
+                                className={cn(
+                                  "h-full rounded-full transition-all",
+                                  region.percentage === 100
+                                    ? "bg-green-500"
+                                    : "bg-blue-500",
+                                )}
+                                style={{ width: `${region.percentage}%` }}
+                              />
+                            </div>
+                          </div>
+                          {unguessedInRegion.length > 0 && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() =>
+                                      toggleRegionReveal(region.region)
+                                    }
+                                    className="h-6 px-2 text-xs shrink-0"
+                                  >
+                                    {isRevealed ? (
+                                      <EyeOff className="h-3 w-3" />
+                                    ) : (
+                                      <Eye className="h-3 w-3" />
+                                    )}
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  {isRevealed
+                                    ? "Hide unguessed countries"
+                                    : "Reveal unguessed countries"}
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
                         </div>
-                        <div className="h-2 bg-zinc-200 dark:bg-zinc-700 rounded-full overflow-hidden">
-                          <div
-                            className={cn(
-                              "h-full rounded-full transition-all",
-                              region.percentage === 100
-                                ? "bg-green-500"
-                                : "bg-blue-500",
-                            )}
-                            style={{ width: `${region.percentage}%` }}
-                          />
-                        </div>
+                        {isRevealed && unguessedInRegion.length > 0 && (
+                          <div className="flex flex-wrap gap-1 text-xs pl-1">
+                            {unguessedInRegion.map((country) => (
+                              <span
+                                key={country.properties.ISO_A2}
+                                className="px-2 py-0.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 rounded"
+                              >
+                                {getCountryFlagEmoji(country.properties.ISO_A2)}{" "}
+                                {country.properties.NAME}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -242,31 +312,11 @@ export function GameHistoryCard({ game }: GameHistoryCardProps) {
                 </div>
               )}
 
-              {/* Countries Lists */}
+              {/* Guessed Countries */}
               <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <h4 className="font-semibold text-sm">Countries</h4>
-                  {unguessedCountries.length > 0 && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() =>
-                        setShowUnguessedCountries(!showUnguessedCountries)
-                      }
-                      className="h-6 px-2 text-xs"
-                    >
-                      {showUnguessedCountries ? (
-                        <>
-                          <EyeOff className="h-3 w-3 mr-1" /> Hide unguessed
-                        </>
-                      ) : (
-                        <>
-                          <Eye className="h-3 w-3 mr-1" /> Reveal unguessed
-                        </>
-                      )}
-                    </Button>
-                  )}
-                </div>
+                <h4 className="font-semibold text-sm mb-2">
+                  Guessed Countries
+                </h4>
                 <div className="flex flex-wrap gap-1 text-xs">
                   {guessedCountriesList.map((country) => (
                     <span
@@ -277,16 +327,6 @@ export function GameHistoryCard({ game }: GameHistoryCardProps) {
                       {country.properties.NAME}
                     </span>
                   ))}
-                  {showUnguessedCountries &&
-                    unguessedCountries.map((country) => (
-                      <span
-                        key={country.properties.ISO_A2}
-                        className="px-2 py-0.5 bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400 rounded"
-                      >
-                        {getCountryFlagEmoji(country.properties.ISO_A2)}{" "}
-                        {country.properties.NAME}
-                      </span>
-                    ))}
                 </div>
               </div>
             </div>
