@@ -31,7 +31,7 @@ function Index() {
   const isIdle = gameStatus === "idle";
 
   return (
-    <div className="relative flex md:flex-row flex-col gap-4 p-4 h-[calc(100vh-64px)] overflow-auto md:overflow-hidden [@media(min-height:800px)]:overflow-hidden">
+    <div className="relative flex md:flex-row flex-col gap-4 p-4 h-[calc(100vh-64px)] overflow-auto md:overflow-hidden">
       {/* Start Screen Overlay */}
       {isIdle && <StartScreen />}
 
@@ -85,17 +85,12 @@ function Index() {
                 End Quiz
               </Button>
             </div>
-            <div className="flex justify-center">
-              <p className="text-muted-foreground text-sm">
-                Made by Jarrod Servilla, heavily inspired by
-              </p>{" "}
-              <a
-                className="ml-1 text-sm underline"
-                href="https://challenge.elsewhere.to/"
-              >
+            <p className="text-muted-foreground text-sm text-center">
+              Made by Jarrod Servilla, heavily inspired by{" "}
+              <a className="underline" href="https://challenge.elsewhere.to/">
                 The Elsewhere Challenge
               </a>
-            </div>
+            </p>
           </div>
           <GuessCommandDialog
             open={guessDialogOpen}
