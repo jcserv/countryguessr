@@ -31,7 +31,7 @@ function Index() {
   const isIdle = gameStatus === "idle";
 
   return (
-    <div className="relative flex md:flex-row flex-col gap-4 p-4 h-[calc(100vh-64px)] overflow-auto md:overflow-hidden">
+    <div className="relative flex md:flex-row flex-col gap-4 p-4 h-[calc(100vh-64px)] overflow-auto md:overflow-hidden [@media(min-height:800px)]:overflow-hidden">
       {/* Start Screen Overlay */}
       {isIdle && <StartScreen />}
 
