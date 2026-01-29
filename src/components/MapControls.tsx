@@ -16,7 +16,7 @@ export function MapControls({ onResetView }: MapControlsProps) {
   if (gameStatus !== "playing") return null;
 
   return (
-    <div className="top-2 right-2 z-[1000] absolute flex flex-col gap-2">
+    <div className="top-2 right-2 z-40 absolute flex flex-col gap-2">
       <Button
         variant="secondary"
         size="sm"
