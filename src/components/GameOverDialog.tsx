@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 
-import { ArrowLeft, Copy, Trophy, XCircle } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { ArrowLeft, BarChart2, Copy, Trophy, XCircle } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -138,7 +139,7 @@ export function GameOverDialog() {
           </div>
         )}
 
-        <DialogFooter className="flex-col gap-2">
+        <DialogFooter className="flex-col sm:flex-col sm:space-x-0 gap-2">
           {mode === "share" ? (
             <Button
               variant="ghost"
@@ -160,6 +161,12 @@ export function GameOverDialog() {
                 onClick={() => setMode("share")}
               >
                 🏆 Share Results
+              </Button>
+              <Button asChild className="w-full" size="lg" variant="outline">
+                <Link to="/stats">
+                  <BarChart2 className="mr-2 w-4 h-4" />
+                  View Stats
+                </Link>
               </Button>
             </>
           )}

@@ -11,6 +11,7 @@ export function TimerDisplay() {
   const isMainRoute = location.pathname === "/";
 
   if (gameStatus !== "playing" && gameStatus !== "paused") return null;
+  if (location.pathname === "/stats") return null;
 
   const minutes = Math.floor(timeRemaining / 60);
   const seconds = timeRemaining % 60;
