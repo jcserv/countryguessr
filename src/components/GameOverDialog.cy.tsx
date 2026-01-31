@@ -1,9 +1,14 @@
 import React from "react";
 
+import { createRouter, RouterContextProvider } from "@tanstack/react-router";
+
 import { GameProvider, useGameContext } from "@/contexts/GameContext";
+import { routeTree } from "@/routeTree.gen";
 import type { CountriesGeoJSON } from "@/types/country";
 
 import { GameOverDialog } from "./GameOverDialog";
+
+const router = createRouter({ routeTree });
 
 // Mock country data
 const mockCountriesData: CountriesGeoJSON = {
@@ -61,11 +66,13 @@ describe("GameOverDialog", () => {
   describe("defeat UI", () => {
     it("shows Game over title on loss", () => {
       cy.mount(
-        <GameProvider>
-          <LoseGameController>
-            <GameOverDialog />
-          </LoseGameController>
-        </GameProvider>,
+        <RouterContextProvider router={router}>
+          <GameProvider>
+            <LoseGameController>
+              <GameOverDialog />
+            </LoseGameController>
+          </GameProvider>
+        </RouterContextProvider>,
       );
 
       cy.wait("@getCountries");
@@ -74,11 +81,13 @@ describe("GameOverDialog", () => {
 
     it("shows XCircle icon on loss", () => {
       cy.mount(
-        <GameProvider>
-          <LoseGameController>
-            <GameOverDialog />
-          </LoseGameController>
-        </GameProvider>,
+        <RouterContextProvider router={router}>
+          <GameProvider>
+            <LoseGameController>
+              <GameOverDialog />
+            </LoseGameController>
+          </GameProvider>
+        </RouterContextProvider>,
       );
 
       cy.wait("@getCountries");
@@ -87,11 +96,13 @@ describe("GameOverDialog", () => {
 
     it("shows defeat message on loss", () => {
       cy.mount(
-        <GameProvider>
-          <LoseGameController>
-            <GameOverDialog />
-          </LoseGameController>
-        </GameProvider>,
+        <RouterContextProvider router={router}>
+          <GameProvider>
+            <LoseGameController>
+              <GameOverDialog />
+            </LoseGameController>
+          </GameProvider>
+        </RouterContextProvider>,
       );
 
       cy.wait("@getCountries");
@@ -104,11 +115,13 @@ describe("GameOverDialog", () => {
   describe("stats display on loss", () => {
     it("shows correct guesses count", () => {
       cy.mount(
-        <GameProvider>
-          <LoseGameController>
-            <GameOverDialog />
-          </LoseGameController>
-        </GameProvider>,
+        <RouterContextProvider router={router}>
+          <GameProvider>
+            <LoseGameController>
+              <GameOverDialog />
+            </LoseGameController>
+          </GameProvider>
+        </RouterContextProvider>,
       );
 
       cy.wait("@getCountries");
@@ -118,11 +131,13 @@ describe("GameOverDialog", () => {
 
     it("shows time elapsed", () => {
       cy.mount(
-        <GameProvider>
-          <LoseGameController>
-            <GameOverDialog />
-          </LoseGameController>
-        </GameProvider>,
+        <RouterContextProvider router={router}>
+          <GameProvider>
+            <LoseGameController>
+              <GameOverDialog />
+            </LoseGameController>
+          </GameProvider>
+        </RouterContextProvider>,
       );
 
       cy.wait("@getCountries");
@@ -131,11 +146,13 @@ describe("GameOverDialog", () => {
 
     it("shows lives remaining", () => {
       cy.mount(
-        <GameProvider>
-          <LoseGameController>
-            <GameOverDialog />
-          </LoseGameController>
-        </GameProvider>,
+        <RouterContextProvider router={router}>
+          <GameProvider>
+            <LoseGameController>
+              <GameOverDialog />
+            </LoseGameController>
+          </GameProvider>
+        </RouterContextProvider>,
       );
 
       cy.wait("@getCountries");
@@ -144,11 +161,13 @@ describe("GameOverDialog", () => {
 
     it("shows accuracy percentage", () => {
       cy.mount(
-        <GameProvider>
-          <LoseGameController>
-            <GameOverDialog />
-          </LoseGameController>
-        </GameProvider>,
+        <RouterContextProvider router={router}>
+          <GameProvider>
+            <LoseGameController>
+              <GameOverDialog />
+            </LoseGameController>
+          </GameProvider>
+        </RouterContextProvider>,
       );
 
       cy.wait("@getCountries");
@@ -159,11 +178,13 @@ describe("GameOverDialog", () => {
   describe("share functionality", () => {
     it("shows Share Results button", () => {
       cy.mount(
-        <GameProvider>
-          <LoseGameController>
-            <GameOverDialog />
-          </LoseGameController>
-        </GameProvider>,
+        <RouterContextProvider router={router}>
+          <GameProvider>
+            <LoseGameController>
+              <GameOverDialog />
+            </LoseGameController>
+          </GameProvider>
+        </RouterContextProvider>,
       );
 
       cy.wait("@getCountries");
@@ -172,11 +193,13 @@ describe("GameOverDialog", () => {
 
     it("switches to share mode when Share Results is clicked", () => {
       cy.mount(
-        <GameProvider>
-          <LoseGameController>
-            <GameOverDialog />
-          </LoseGameController>
-        </GameProvider>,
+        <RouterContextProvider router={router}>
+          <GameProvider>
+            <LoseGameController>
+              <GameOverDialog />
+            </LoseGameController>
+          </GameProvider>
+        </RouterContextProvider>,
       );
 
       cy.wait("@getCountries");
@@ -187,11 +210,13 @@ describe("GameOverDialog", () => {
 
     it("shows Back to results button in share mode", () => {
       cy.mount(
-        <GameProvider>
-          <LoseGameController>
-            <GameOverDialog />
-          </LoseGameController>
-        </GameProvider>,
+        <RouterContextProvider router={router}>
+          <GameProvider>
+            <LoseGameController>
+              <GameOverDialog />
+            </LoseGameController>
+          </GameProvider>
+        </RouterContextProvider>,
       );
 
       cy.wait("@getCountries");
@@ -201,11 +226,13 @@ describe("GameOverDialog", () => {
 
     it("returns to base mode when Back to results is clicked", () => {
       cy.mount(
-        <GameProvider>
-          <LoseGameController>
-            <GameOverDialog />
-          </LoseGameController>
-        </GameProvider>,
+        <RouterContextProvider router={router}>
+          <GameProvider>
+            <LoseGameController>
+              <GameOverDialog />
+            </LoseGameController>
+          </GameProvider>
+        </RouterContextProvider>,
       );
 
       cy.wait("@getCountries");
@@ -219,11 +246,13 @@ describe("GameOverDialog", () => {
   describe("Play Again button", () => {
     it("shows Play Again button", () => {
       cy.mount(
-        <GameProvider>
-          <LoseGameController>
-            <GameOverDialog />
-          </LoseGameController>
-        </GameProvider>,
+        <RouterContextProvider router={router}>
+          <GameProvider>
+            <LoseGameController>
+              <GameOverDialog />
+            </LoseGameController>
+          </GameProvider>
+        </RouterContextProvider>,
       );
 
       cy.wait("@getCountries");
@@ -232,11 +261,13 @@ describe("GameOverDialog", () => {
 
     it("calls resetGame when Play Again is clicked", () => {
       cy.mount(
-        <GameProvider>
-          <LoseGameController>
-            <GameOverDialog />
-          </LoseGameController>
-        </GameProvider>,
+        <RouterContextProvider router={router}>
+          <GameProvider>
+            <LoseGameController>
+              <GameOverDialog />
+            </LoseGameController>
+          </GameProvider>
+        </RouterContextProvider>,
       );
 
       cy.wait("@getCountries");
