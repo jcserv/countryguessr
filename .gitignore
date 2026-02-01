@@ -1,5 +1,7 @@
 cypress/screenshots
-# Logs
+# logs
+
+**/.DS_Store
 
 logs
 *.log
