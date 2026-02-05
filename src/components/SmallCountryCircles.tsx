@@ -3,11 +3,16 @@ import { Marker } from "react-leaflet";
 
 import L from "leaflet";
 
+import { useCompetitive } from "@/contexts/CompetitiveContext";
 import { useGameContext } from "@/contexts/GameContext";
 import { SMALL_COUNTRY_CIRCLES } from "@/lib/countryNavigation";
 
 interface SmallCountryCirclesProps {
   onCountryDoubleClick?: () => void;
+  // For competitive mode
+  competitiveMode?: boolean;
+  selectedCountry?: string | null;
+  onSelectCountry?: (code: string) => void;
 }
 
 // Create a DivIcon styled as a circle
@@ -47,14 +52,52 @@ const MOVE_TOLERANCE = 10; // px
 
 export function SmallCountryCircles({
   onCountryDoubleClick,
+  competitiveMode = false,
+  selectedCountry: propSelectedCountry,
+  onSelectCountry,
 }: SmallCountryCirclesProps) {
-  const {
-    countryCentroids,
-    guessedCountries,
-    selectedCountry,
-    selectCountry,
-    gameStatus,
-  } = useGameContext();
+  // Use solo mode context
+  const soloContext = useGameContext();
+
+  // Conditionally use competitive context (only when in competitive mode)
+  // We call the hook unconditionally at the module level to follow rules of hooks
+  // but only use its result when in competitive mode
+  let competitiveContext: ReturnType<typeof useCompetitive> | null = null;
+  try {
+    // This try-catch is needed because the component can be used outside CompetitiveProvider
+
+    competitiveContext = competitiveMode ? useCompetitive() : null;
+  } catch {
+    // Not in competitive context, ignore
+  }
+
+  // Determine which values to use based on mode
+  const countryCentroids = soloContext.countryCentroids;
+  const selectedCountry = competitiveMode
+    ? propSelectedCountry
+    : soloContext.selectedCountry;
+  const selectCountry = competitiveMode
+    ? onSelectCountry || (() => {})
+    : soloContext.selectCountry;
+  const gameStatus = competitiveMode
+    ? competitiveContext?.gameState?.status === "playing"
+      ? "playing"
+      : "idle"
+    : soloContext.gameStatus;
+
+  // For competitive mode, build a Set of claimed country codes
+  const claimedCountries =
+    competitiveMode && competitiveContext?.gameState
+      ? new Set(competitiveContext.gameState.claimedCountries.keys())
+      : new Set<string>();
+
+  // For solo mode, use guessedCountries
+  const guessedCountries = competitiveMode
+    ? claimedCountries
+    : soloContext.guessedCountries;
+
+  // Get player colors for competitive mode
+  const playerColors = competitiveContext?.playerColors;
 
   const [hoveredCountry, setHoveredCountry] = useState<string | null>(null);
 
@@ -219,6 +262,14 @@ export function SmallCountryCircles({
         const isSelected = selectedCountry === code;
         const isHovered = hoveredCountry === code;
 
+        // For competitive mode, get the claimer's color
+        const claimerId =
+          competitiveMode && competitiveContext?.gameState
+            ? competitiveContext.gameState.claimedCountries.get(code)
+            : null;
+        const claimerColor =
+          claimerId && playerColors ? playerColors.get(claimerId) : null;
+
         // Determine colors based on state
         let color: string;
         let fillColor: string;
@@ -226,13 +277,14 @@ export function SmallCountryCircles({
         let dashed: boolean;
 
         if (isGuessed) {
-          color = "#22c55e"; // Green
-          fillColor = "#22c55e";
+          // Use claimer's color in competitive mode, green in solo
+          color = claimerColor || "#22c55e";
+          fillColor = claimerColor || "#22c55e";
           fillOpacity = 0.3;
           dashed = false;
         } else if (isSelected) {
-          color = "#ec4899"; // Pink
-          fillColor = "#ec4899";
+          color = competitiveMode ? "#fbbf24" : "#ec4899"; // Yellow in competitive, pink in solo
+          fillColor = competitiveMode ? "#fbbf24" : "#ec4899";
           fillOpacity = 0.3;
           dashed = false;
         } else if (isHovered) {

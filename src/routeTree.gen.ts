@@ -8,73 +8,152 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute } from '@tanstack/react-router'
 
-import { Route as rootRouteImport } from "./routes/__root";
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as CompetitiveRouteRouteImport } from './routes/competitive/route'
 
-const StatsLazyRouteImport = createFileRoute("/stats")();
-const IndexLazyRouteImport = createFileRoute("/")();
+const StatsLazyRouteImport = createFileRoute('/stats')()
+const IndexLazyRouteImport = createFileRoute('/')()
+const CompetitiveIndexLazyRouteImport = createFileRoute('/competitive/')()
+const CompetitiveGameIdLazyRouteImport = createFileRoute(
+  '/competitive/$gameId',
+)()
 
 const StatsLazyRoute = StatsLazyRouteImport.update({
-  id: "/stats",
-  path: "/stats",
+  id: '/stats',
+  path: '/stats',
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import("./routes/stats.lazy").then((d) => d.Route));
+} as any).lazy(() => import('./routes/stats.lazy').then((d) => d.Route))
+const CompetitiveRouteRoute = CompetitiveRouteRouteImport.update({
+  id: '/competitive',
+  path: '/competitive',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexLazyRoute = IndexLazyRouteImport.update({
-  id: "/",
-  path: "/",
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
-} as any).lazy(() => import("./routes/index.lazy").then((d) => d.Route));
+} as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
+const CompetitiveIndexLazyRoute = CompetitiveIndexLazyRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => CompetitiveRouteRoute,
+} as any).lazy(() =>
+  import('./routes/competitive/index.lazy').then((d) => d.Route),
+)
+const CompetitiveGameIdLazyRoute = CompetitiveGameIdLazyRouteImport.update({
+  id: '/$gameId',
+  path: '/$gameId',
+  getParentRoute: () => CompetitiveRouteRoute,
+} as any).lazy(() =>
+  import('./routes/competitive/$gameId.lazy').then((d) => d.Route),
+)
 
 export interface FileRoutesByFullPath {
-  "/": typeof IndexLazyRoute;
-  "/stats": typeof StatsLazyRoute;
+  '/': typeof IndexLazyRoute
+  '/competitive': typeof CompetitiveRouteRouteWithChildren
+  '/stats': typeof StatsLazyRoute
+  '/competitive/$gameId': typeof CompetitiveGameIdLazyRoute
+  '/competitive/': typeof CompetitiveIndexLazyRoute
 }
 export interface FileRoutesByTo {
-  "/": typeof IndexLazyRoute;
-  "/stats": typeof StatsLazyRoute;
+  '/': typeof IndexLazyRoute
+  '/stats': typeof StatsLazyRoute
+  '/competitive/$gameId': typeof CompetitiveGameIdLazyRoute
+  '/competitive': typeof CompetitiveIndexLazyRoute
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport;
-  "/": typeof IndexLazyRoute;
-  "/stats": typeof StatsLazyRoute;
+  __root__: typeof rootRouteImport
+  '/': typeof IndexLazyRoute
+  '/competitive': typeof CompetitiveRouteRouteWithChildren
+  '/stats': typeof StatsLazyRoute
+  '/competitive/$gameId': typeof CompetitiveGameIdLazyRoute
+  '/competitive/': typeof CompetitiveIndexLazyRoute
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath;
-  fullPaths: "/" | "/stats";
-  fileRoutesByTo: FileRoutesByTo;
-  to: "/" | "/stats";
-  id: "__root__" | "/" | "/stats";
-  fileRoutesById: FileRoutesById;
+  fileRoutesByFullPath: FileRoutesByFullPath
+  fullPaths:
+    | '/'
+    | '/competitive'
+    | '/stats'
+    | '/competitive/$gameId'
+    | '/competitive/'
+  fileRoutesByTo: FileRoutesByTo
+  to: '/' | '/stats' | '/competitive/$gameId' | '/competitive'
+  id:
+    | '__root__'
+    | '/'
+    | '/competitive'
+    | '/stats'
+    | '/competitive/$gameId'
+    | '/competitive/'
+  fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexLazyRoute: typeof IndexLazyRoute;
-  StatsLazyRoute: typeof StatsLazyRoute;
+  IndexLazyRoute: typeof IndexLazyRoute
+  CompetitiveRouteRoute: typeof CompetitiveRouteRouteWithChildren
+  StatsLazyRoute: typeof StatsLazyRoute
 }
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    "/stats": {
-      id: "/stats";
-      path: "/stats";
-      fullPath: "/stats";
-      preLoaderRoute: typeof StatsLazyRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
-    "/": {
-      id: "/";
-      path: "/";
-      fullPath: "/";
-      preLoaderRoute: typeof IndexLazyRouteImport;
-      parentRoute: typeof rootRouteImport;
-    };
+    '/stats': {
+      id: '/stats'
+      path: '/stats'
+      fullPath: '/stats'
+      preLoaderRoute: typeof StatsLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/competitive': {
+      id: '/competitive'
+      path: '/competitive'
+      fullPath: '/competitive'
+      preLoaderRoute: typeof CompetitiveRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexLazyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/competitive/': {
+      id: '/competitive/'
+      path: '/'
+      fullPath: '/competitive/'
+      preLoaderRoute: typeof CompetitiveIndexLazyRouteImport
+      parentRoute: typeof CompetitiveRouteRoute
+    }
+    '/competitive/$gameId': {
+      id: '/competitive/$gameId'
+      path: '/$gameId'
+      fullPath: '/competitive/$gameId'
+      preLoaderRoute: typeof CompetitiveGameIdLazyRouteImport
+      parentRoute: typeof CompetitiveRouteRoute
+    }
   }
 }
 
+interface CompetitiveRouteRouteChildren {
+  CompetitiveGameIdLazyRoute: typeof CompetitiveGameIdLazyRoute
+  CompetitiveIndexLazyRoute: typeof CompetitiveIndexLazyRoute
+}
+
+const CompetitiveRouteRouteChildren: CompetitiveRouteRouteChildren = {
+  CompetitiveGameIdLazyRoute: CompetitiveGameIdLazyRoute,
+  CompetitiveIndexLazyRoute: CompetitiveIndexLazyRoute,
+}
+
+const CompetitiveRouteRouteWithChildren =
+  CompetitiveRouteRoute._addFileChildren(CompetitiveRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexLazyRoute: IndexLazyRoute,
+  CompetitiveRouteRoute: CompetitiveRouteRouteWithChildren,
   StatsLazyRoute: StatsLazyRoute,
-};
+}
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>();
+  ._addFileTypes<FileRouteTypes>()

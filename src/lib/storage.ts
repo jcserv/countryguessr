@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { COMPETITIVE_STORAGE_KEYS } from "@/types/competitive";
 import type {
   CompletedGame,
   CompletedGameV1,
@@ -157,5 +158,56 @@ export function clearAllGameData(): void {
     localStorage.removeItem(STORAGE_KEYS.GAME_HISTORY);
   } catch (error) {
     console.error("Failed to clear game data:", error);
+  }
+}
+
+// =============================================================================
+// Competitive Mode Storage
+// =============================================================================
+
+/**
+ * Generate a unique player ID for competitive mode
+ */
+function generatePlayerId(): string {
+  return `player_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+}
+
+/**
+ * Get or create a persistent player ID for competitive mode
+ */
+export function getPlayerId(): string {
+  try {
+    const stored = localStorage.getItem(COMPETITIVE_STORAGE_KEYS.PLAYER_ID);
+    if (stored) return stored;
+
+    const newId = generatePlayerId();
+    localStorage.setItem(COMPETITIVE_STORAGE_KEYS.PLAYER_ID, newId);
+    return newId;
+  } catch (error) {
+    console.error("Failed to get/create player ID:", error);
+    return generatePlayerId();
+  }
+}
+
+/**
+ * Save the player's nickname for competitive mode
+ */
+export function saveNickname(nickname: string): void {
+  try {
+    localStorage.setItem(COMPETITIVE_STORAGE_KEYS.NICKNAME, nickname);
+  } catch (error) {
+    console.error("Failed to save nickname:", error);
+  }
+}
+
+/**
+ * Load the player's saved nickname
+ */
+export function loadNickname(): string | null {
+  try {
+    return localStorage.getItem(COMPETITIVE_STORAGE_KEYS.NICKNAME);
+  } catch (error) {
+    console.error("Failed to load nickname:", error);
+    return null;
   }
 }

@@ -1,7 +1,14 @@
 import { useState } from "react";
 
 import { Link, useLocation } from "@tanstack/react-router";
-import { BarChart2, Gamepad2, Github, Menu, Moon, Sun } from "lucide-react";
+import {
+  BarChart2,
+  Gamepad2,
+  Github,
+  Menu,
+  Moon,
+  Sun,
+} from "lucide-react";
 
 import { ModeToggle } from "@/components";
 import { useTheme } from "@/components/theme-provider";

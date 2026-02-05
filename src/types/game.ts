@@ -25,11 +25,8 @@ export interface RegionProgress {
   percentage: number;
 }
 
-// Game configuration
-export const GAME_CONFIG = {
-  INITIAL_LIVES: 3,
-  INITIAL_TIME_SECONDS: 30 * 60, // 30 minutes
-} as const;
+// Re-export from centralized constants
+export { GAME_CONFIG, STORAGE_KEYS } from "@/lib/constants";
 
 // Wrong guess tracking
 export interface WrongGuess {
@@ -92,9 +89,3 @@ export interface GameHistory {
   version: 2;
   games: CompletedGame[];
 }
-
-// Storage keys
-export const STORAGE_KEYS = {
-  CURRENT_GAME: "countryguessr_current_game",
-  GAME_HISTORY: "countryguessr_game_history",
-} as const;

@@ -4,6 +4,7 @@ import ReactDOM from "react-dom/client";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 
 import { ThemeProvider } from "@/components/theme-provider";
+import { CompetitiveTimerProvider } from "@/contexts/CompetitiveTimerContext";
 import { GameProvider } from "@/contexts/GameContext";
 
 import { routeTree } from "./routeTree.gen";
@@ -25,9 +26,11 @@ if (!rootElement.innerHTML) {
   root.render(
     <StrictMode>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-        <GameProvider>
-          <RouterProvider router={router} />
-        </GameProvider>
+        <CompetitiveTimerProvider>
+          <GameProvider>
+            <RouterProvider router={router} />
+          </GameProvider>
+        </CompetitiveTimerProvider>
       </ThemeProvider>
     </StrictMode>,
   );

@@ -40,6 +40,9 @@ importers:
       lucide-react:
         specifier: ^0.162.0
         version: 0.162.0(react@19.2.3)
+      phoenix:
+        specifier: ^1.8.3
+        version: 1.8.3
       react:
         specifier: ^19.2.3
         version: 19.2.3
@@ -55,6 +58,9 @@ importers:
       tailwindcss-animate:
         specifier: ^1.0.7
         version: 1.0.7(tailwindcss@3.4.19(tsx@4.21.0)(yaml@2.6.0))
+      zod:
+        specifier: ^4.3.6
+        version: 4.3.6
     devDependencies:
       "@eslint/js":
         specifier: ^9.39.2
@@ -4116,6 +4122,12 @@ packages:
         integrity: sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==,
       }
 
+  phoenix@1.8.3:
+    resolution:
+      {
+        integrity: sha512-5bMYQI30wl3erxbHnXMdt1xuQeRTeEOpQrakf3yqj/1HRHl7Gj4Cdk2NKXkUcCD5WpbxrilvZEMexM1VhWbnDg==,
+      }
+
   picocolors@1.1.1:
     resolution:
       {
@@ -5468,6 +5480,12 @@ packages:
     resolution:
       {
         integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==,
+      }
+
+  zod@4.3.6:
+    resolution:
+      {
+        integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==,
       }
 
 snapshots:
@@ -8028,6 +8046,8 @@ snapshots:
 
   performance-now@2.1.0: {}
 
+  phoenix@1.8.3: {}
+
   picocolors@1.1.1: {}
 
   picomatch@2.3.1: {}
@@ -8912,3 +8932,5 @@ snapshots:
   yocto-queue@0.1.0: {}
 
   zod@3.25.76: {}
+
+  zod@4.3.6: {}

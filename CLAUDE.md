@@ -20,6 +20,7 @@ pnpm test:cypress:ci   # Cypress component tests (CI mode)
 **CountryGuessr** is a geography guessing game where players identify 178 countries on an interactive map within time and life constraints.
 
 ### Tech Stack
+
 - React 19 + TypeScript 5.9 + Vite 7
 - TanStack Router (file-based routing with `.lazy.tsx` files)
 - Leaflet/React-Leaflet for map rendering
@@ -28,6 +29,7 @@ pnpm test:cypress:ci   # Cypress component tests (CI mode)
 - Cloudflare Pages for deployment
 
 ### Key Directories
+
 - `src/routes/` - TanStack Router file-based routes (`__root.tsx` is root layout)
 - `src/contexts/GameContext.tsx` - Centralized game state (lives, time, guesses, game status)
 - `src/components/ui/` - Shadcn/ui generated components (avoid editing directly)
@@ -36,18 +38,23 @@ pnpm test:cypress:ci   # Cypress component tests (CI mode)
 - `public/data/countries.geojson` - Pre-processed 178-country dataset
 
 ### State Management
+
 Game state flows through `GameContext` using React Context API. The context manages:
+
 - Game status (playing, paused, won, lost)
 - Current country selection and guessing
 - Lives (3 initial) and timer (30 min)
 - Persistence via localStorage with auto-resume and v1→v2 migration
 
 ### Routing
+
 TanStack Router auto-generates route tree from `src/routes/`. Routes use lazy loading pattern:
+
 - `index.lazy.tsx` - Main game page
 - `stats.lazy.tsx` - Game statistics page
 
 ### Path Alias
+
 `@/*` maps to `src/*` (configured in tsconfig.json and vite.config.ts)
 
 ## Code Style

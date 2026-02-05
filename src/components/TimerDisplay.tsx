@@ -2,16 +2,51 @@ import { useLocation } from "@tanstack/react-router";
 import { Pause, Timer } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useCompetitiveTimer } from "@/contexts/CompetitiveTimerContext";
 import { useGameContext } from "@/contexts/GameContext";
 import { cn } from "@/lib/utils";
 
-export function TimerDisplay() {
-  const { timeRemaining, gameStatus, pauseGame } = useGameContext();
+interface TimerDisplayProps {
+  // Optional overrides for competitive mode
+  timeRemaining?: number | null;
+  status?: string;
+  showPause?: boolean;
+  onPause?: () => void;
+}
+
+export function TimerDisplay({
+  timeRemaining: propTimeRemaining,
+  status: propStatus,
+  showPause: propShowPause,
+  onPause: propOnPause,
+}: TimerDisplayProps = {}) {
+  // Get solo context values as defaults
+  const soloContext = useGameContext();
   const location = useLocation();
   const isMainRoute = location.pathname === "/";
+  const isCompetitiveRoute = location.pathname.startsWith("/competitive/");
+
+  // Get competitive timer from global context (works even in Header)
+  const competitiveTimer = useCompetitiveTimer();
+  const competitiveTimeRemaining = competitiveTimer.timeRemaining;
+  const competitiveStatus = competitiveTimer.status;
+
+  // Use props if provided, then competitive context (if on competitive route), then solo context
+  const timeRemaining =
+    propTimeRemaining ??
+    (isCompetitiveRoute ? competitiveTimeRemaining : null) ??
+    soloContext.timeRemaining;
+  const gameStatus =
+    propStatus ??
+    (isCompetitiveRoute ? competitiveStatus : null) ??
+    soloContext.gameStatus;
+  const pauseGame = propOnPause ?? soloContext.pauseGame;
+  // Only show pause button on main route (solo mode)
+  const showPause = propShowPause ?? (isMainRoute && gameStatus === "playing");
 
   if (gameStatus !== "playing" && gameStatus !== "paused") return null;
   if (location.pathname === "/stats") return null;
+  if (timeRemaining === null) return null;
 
   const minutes = Math.floor(timeRemaining / 60);
   const seconds = timeRemaining % 60;
@@ -39,7 +74,7 @@ export function TimerDisplay() {
           {minutes}:{seconds.toString().padStart(2, "0")}
         </span>
       </div>
-      {gameStatus === "playing" && isMainRoute && (
+      {showPause && (
         <Button
           variant="ghost"
           size="icon"

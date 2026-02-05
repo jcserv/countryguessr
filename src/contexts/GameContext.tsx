@@ -8,6 +8,7 @@ import React, {
   useState,
 } from "react";
 
+import { useCountries } from "@/hooks/useCountries";
 import {
   computeAllCentroids,
   type CountryCentroids,
@@ -19,7 +20,7 @@ import {
   saveCompletedGame,
   saveCurrentGame,
 } from "@/lib/storage";
-import type { CountriesGeoJSON, CountryFeature } from "@/types/country";
+import type { CountryFeature } from "@/types/country";
 import type {
   GameStatus,
   RegionProgress,
@@ -64,13 +65,11 @@ interface GameContextValue {
 const GameContext = createContext<GameContextValue | null>(null);
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
-  const [countries, setCountries] = useState<CountryFeature[]>([]);
+  const { countries, loading, error } = useCountries();
   const [guessedCountries, setGuessedCountries] = useState<Set<string>>(
     new Set(),
   );
   const [selectedCountry, setSelectedCountry] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   // New game state
   const [gameStatus, setGameStatus] = useState<GameStatus>("idle");
@@ -88,29 +87,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
   // Ref to store the map reset handler
   const mapResetHandlerRef = useRef<(() => void) | null>(null);
-
-  // Load GeoJSON data on mount
-  // The GeoJSON is pre-processed to contain exactly 178 countries matching Elsewhere Challenge
-  useEffect(() => {
-    fetch("/data/countries.geojson")
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to load countries data");
-        }
-        return res.json();
-      })
-      .then((data: CountriesGeoJSON) => {
-        // All countries are already curated - just load them directly
-        setCountries(data.features);
-        setLoading(false);
-      })
-      .catch((err) => {
-        // eslint-disable-next-line no-console
-        console.error("Error loading countries:", err);
-        setError(err.message);
-        setLoading(false);
-      });
-  }, []);
 
   // Load saved game from localStorage after countries are loaded
   useEffect(() => {
