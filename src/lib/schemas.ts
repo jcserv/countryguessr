@@ -12,6 +12,8 @@ const PlayerPayloadSchema = z.object({
   claimed_countries: z.array(z.string()),
   is_host: z.boolean(),
   is_connected: z.boolean(),
+  lives: z.number(),
+  is_eliminated: z.boolean(),
 });
 
 // Full game state from server
@@ -54,6 +56,8 @@ const RankingEntrySchema = z.object({
   player_id: z.string(),
   nickname: z.string(),
   claimed_count: z.number(),
+  lives_remaining: z.number(),
+  is_eliminated: z.boolean(),
 });
 
 // Game ended event
@@ -66,6 +70,17 @@ export const GameEndedPayloadSchema = z.object({
 // Timer tick event
 export const TimerTickPayloadSchema = z.object({
   time_remaining: z.number(),
+});
+
+// Life lost event
+export const LifeLostPayloadSchema = z.object({
+  player_id: z.string(),
+  lives_remaining: z.number(),
+});
+
+// Player eliminated event
+export const PlayerEliminatedPayloadSchema = z.object({
+  player_id: z.string(),
 });
 
 // Claim country response
@@ -104,6 +119,10 @@ export type ValidatedGameEndedPayload = z.infer<typeof GameEndedPayloadSchema>;
 export type ValidatedTimerTickPayload = z.infer<typeof TimerTickPayloadSchema>;
 export type ValidatedClaimCountryResponse = z.infer<
   typeof ClaimCountryResponseSchema
+>;
+export type ValidatedLifeLostPayload = z.infer<typeof LifeLostPayloadSchema>;
+export type ValidatedPlayerEliminatedPayload = z.infer<
+  typeof PlayerEliminatedPayloadSchema
 >;
 
 /**

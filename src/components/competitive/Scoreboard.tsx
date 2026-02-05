@@ -1,4 +1,4 @@
-import { Crown, Medal, Trophy } from "lucide-react";
+import { Crown, Medal, Skull, Trophy } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -86,9 +86,14 @@ export function Scoreboard({ onLeave }: ScoreboardProps) {
                       {isMe && " (You)"}
                     </span>
                   </div>
-                  <span className="text-lg font-bold">
-                    {rank.claimed_count}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {rank.is_eliminated && (
+                      <Skull className="w-4 h-4 text-muted-foreground" />
+                    )}
+                    <span className="text-lg font-bold">
+                      {rank.claimed_count}
+                    </span>
+                  </div>
                 </div>
               );
             })}

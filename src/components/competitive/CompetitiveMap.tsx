@@ -41,7 +41,7 @@ export function CompetitiveMap({
   selectedCountry: propSelectedCountry,
   onSelectCountry,
 }: CompetitiveMapProps) {
-  const { gameState, playerColors } = useCompetitive();
+  const { gameState, playerColors, isEliminated } = useCompetitive();
   const [countries, setCountries] = useState<CountryFeature[]>([]);
   const [loading, setLoading] = useState(true);
   const [internalSelectedCountry, setInternalSelectedCountry] = useState<
@@ -133,13 +133,14 @@ export function CompetitiveMap({
 
       layer.on({
         click: () => {
-          if (gameState.status === "playing") {
+          if (gameState.status === "playing" && !isEliminated) {
             setSelectedCountry(code);
           }
         },
         dblclick: () => {
           if (
             gameState.status === "playing" &&
+            !isEliminated &&
             selectedCountry === code &&
             !claimerId &&
             onCountryDoubleClick
@@ -148,7 +149,7 @@ export function CompetitiveMap({
           }
         },
         mouseover: (e) => {
-          if (gameState.status !== "playing") return;
+          if (gameState.status !== "playing" || isEliminated) return;
           const target = e.target;
           const isSelected = selectedCountry === code;
           if (!claimerId && !isSelected) {
@@ -159,7 +160,7 @@ export function CompetitiveMap({
           }
         },
         mouseout: (e) => {
-          if (gameState.status !== "playing") return;
+          if (gameState.status !== "playing" || isEliminated) return;
           const target = e.target;
           const isSelected = selectedCountry === code;
           if (!claimerId && !isSelected) {
@@ -173,6 +174,7 @@ export function CompetitiveMap({
         onLongPress: () => {
           if (
             gameState.status === "playing" &&
+            !isEliminated &&
             !claimerId &&
             onCountryDoubleClick
           ) {
@@ -202,6 +204,7 @@ export function CompetitiveMap({
       onCountryDoubleClick,
       getCountryStyle,
       setSelectedCountry,
+      isEliminated,
     ],
   );
 

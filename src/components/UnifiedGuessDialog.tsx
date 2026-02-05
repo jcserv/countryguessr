@@ -28,6 +28,7 @@ interface UnifiedGuessDialogProps {
   countries: CountryFeature[];
   isCountryAvailable: (code: string) => boolean;
   submitGuess: (code: string) => Promise<GuessResult>;
+  isEliminated?: boolean;
 }
 
 export function UnifiedGuessDialog({
@@ -39,6 +40,7 @@ export function UnifiedGuessDialog({
   countries,
   isCountryAvailable,
   submitGuess,
+  isEliminated = false,
 }: UnifiedGuessDialogProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -56,12 +58,6 @@ export function UnifiedGuessDialog({
       return;
     }
 
-    // In competitive mode, check if guess matches selected country
-    if (mode === "competitive" && countryCode !== selectedCountry) {
-      setError("That's not the country you selected!");
-      return;
-    }
-
     setIsSubmitting(true);
     setError(null);
 
@@ -70,6 +66,12 @@ export function UnifiedGuessDialog({
       if (result.success) {
         setSearchQuery("");
         onOpenChange(false);
+      } else if (result.isEliminated) {
+        setError(result.error || "You've been eliminated!");
+        setTimeout(() => {
+          setSearchQuery("");
+          onOpenChange(false);
+        }, 2000);
       } else {
         setError(result.error || "Incorrect guess");
       }
@@ -88,10 +90,12 @@ export function UnifiedGuessDialog({
     onOpenChange(newOpen);
   };
 
-  const isDisabled = status !== "playing" || !selectedCountry || isSubmitting;
+  const isDisabled =
+    status !== "playing" || !selectedCountry || isSubmitting || isEliminated;
 
-  const placeholder =
-    status !== "playing"
+  const placeholder = isEliminated
+    ? "You've been eliminated!"
+    : status !== "playing"
       ? mode === "competitive"
         ? "Waiting for game to start..."
         : "Start a game to begin guessing!"

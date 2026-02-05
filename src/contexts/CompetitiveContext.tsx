@@ -16,6 +16,8 @@ import {
   GameEndedPayloadSchema,
   GameStartedPayloadSchema,
   GameStatePayloadSchema,
+  LifeLostPayloadSchema,
+  PlayerEliminatedPayloadSchema,
   PlayerJoinedPayloadSchema,
   PlayerLeftPayloadSchema,
   safeParsePayload,
@@ -29,6 +31,7 @@ import type {
   GameEndedPayload,
   GameStatePayload,
   Player,
+  SubmitGuessResponse,
 } from "@/types/competitive";
 import type { CompletedGame } from "@/types/game";
 import type { UnifiedGameStatus } from "@/types/unified-game";
@@ -45,12 +48,18 @@ interface CompetitiveContextValue {
   playerColors: Map<string, PlayerColor>;
   isHost: boolean;
   myClaimedCountries: string[];
+  myLives: number;
+  isEliminated: boolean;
   rankings: GameEndedPayload["rankings"] | null;
 
   // Actions
   leaveGame: () => void;
   startGame: () => Promise<void>;
   claimCountry: (countryCode: string) => Promise<ClaimCountryResponse>;
+  submitGuess: (
+    clickedCountry: string,
+    guessedCountry: string,
+  ) => Promise<SubmitGuessResponse>;
   endGame: () => Promise<void>;
 }
 
@@ -87,6 +96,8 @@ export function CompetitiveProvider({
           claimedCountries: p.claimed_countries,
           isHost: p.is_host,
           isConnected: p.is_connected,
+          lives: p.lives,
+          isEliminated: p.is_eliminated,
         });
       });
 
@@ -166,6 +177,8 @@ export function CompetitiveProvider({
           claimedCountries: [],
           isHost: data.is_host,
           isConnected: true,
+          lives: 3,
+          isEliminated: false,
         });
         return { ...prev, players: newPlayers };
       });
@@ -318,6 +331,53 @@ export function CompetitiveProvider({
       });
     });
 
+    // Life lost
+    channel.on("life_lost", (payload) => {
+      const data = safeParsePayload(
+        LifeLostPayloadSchema,
+        payload,
+        "life_lost",
+      );
+      if (!data) return;
+      setGameState((prev) => {
+        if (!prev) return prev;
+        const player = prev.players.get(data.player_id);
+        if (player) {
+          const newPlayers = new Map(prev.players);
+          newPlayers.set(data.player_id, {
+            ...player,
+            lives: data.lives_remaining,
+          });
+          return { ...prev, players: newPlayers };
+        }
+        return prev;
+      });
+    });
+
+    // Player eliminated
+    channel.on("player_eliminated", (payload) => {
+      const data = safeParsePayload(
+        PlayerEliminatedPayloadSchema,
+        payload,
+        "player_eliminated",
+      );
+      if (!data) return;
+      setGameState((prev) => {
+        if (!prev) return prev;
+        const player = prev.players.get(data.player_id);
+        if (player) {
+          const newPlayers = new Map(prev.players);
+          newPlayers.set(data.player_id, {
+            ...player,
+            isEliminated: true,
+            lives: 0,
+          });
+          return { ...prev, players: newPlayers };
+        }
+        return prev;
+      });
+    });
+
     return () => {
       channel.off("game_state");
       channel.off("player_joined");
@@ -326,6 +386,8 @@ export function CompetitiveProvider({
       channel.off("game_started");
       channel.off("game_ended");
       channel.off("timer_tick");
+      channel.off("life_lost");
+      channel.off("player_eliminated");
     };
   }, [channel, parseGameState]);
 
@@ -367,6 +429,16 @@ export function CompetitiveProvider({
     return me?.claimedCountries ?? [];
   }, [gameState, playerId]);
 
+  const myLives = useMemo(() => {
+    const me = gameState?.players.get(playerId);
+    return me?.lives ?? 3;
+  }, [gameState, playerId]);
+
+  const isEliminated = useMemo(() => {
+    const me = gameState?.players.get(playerId);
+    return me?.isEliminated ?? false;
+  }, [gameState, playerId]);
+
   // Actions
   const leaveGame = useCallback(() => {
     leave();
@@ -395,6 +467,27 @@ export function CompetitiveProvider({
     [push],
   );
 
+  const submitGuess = useCallback(
+    async (
+      clickedCountry: string,
+      guessedCountry: string,
+    ): Promise<SubmitGuessResponse> => {
+      try {
+        const response = await push<SubmitGuessResponse>("submit_guess", {
+          clicked_country: clickedCountry,
+          guessed_country: guessedCountry,
+        });
+        return response;
+      } catch (err) {
+        return {
+          correct: false,
+          error: err instanceof Error ? err.message : "Failed to submit guess",
+        };
+      }
+    },
+    [push],
+  );
+
   const endGame = useCallback(async () => {
     await push("end_game", {});
   }, [push]);
@@ -409,10 +502,13 @@ export function CompetitiveProvider({
       playerColors,
       isHost,
       myClaimedCountries,
+      myLives,
+      isEliminated,
       rankings,
       leaveGame,
       startGame,
       claimCountry,
+      submitGuess,
       endGame,
     }),
     [
@@ -424,10 +520,13 @@ export function CompetitiveProvider({
       playerColors,
       isHost,
       myClaimedCountries,
+      myLives,
+      isEliminated,
       rankings,
       leaveGame,
       startGame,
       claimCountry,
+      submitGuess,
       endGame,
     ],
   );

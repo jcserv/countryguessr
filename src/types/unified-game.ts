@@ -24,6 +24,8 @@ export interface PlayerProgress {
   color: string;
   isMe: boolean;
   isConnected: boolean;
+  lives?: number;
+  isEliminated?: boolean;
 }
 
 // Country owner info for competitive mode
@@ -38,7 +40,8 @@ export interface UnifiedGameState {
   mode: UnifiedGameMode;
   status: UnifiedGameStatus;
   timeRemaining: number | null;
-  livesRemaining?: number; // Solo only
+  livesRemaining?: number; // Solo and Competitive
+  isEliminated?: boolean; // Competitive only
 
   countries: CountryFeature[];
   countryCentroids: CountryCentroids;
@@ -66,6 +69,8 @@ export interface UnifiedGameState {
 export interface GuessResult {
   success: boolean;
   error?: string;
+  livesRemaining?: number;
+  isEliminated?: boolean;
 }
 
 // Unified game actions interface

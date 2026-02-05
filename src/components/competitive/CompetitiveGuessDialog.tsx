@@ -28,7 +28,7 @@ export function CompetitiveGuessDialog({
   selectedCountry,
   countries,
 }: CompetitiveGuessDialogProps) {
-  const { gameState, claimCountry } = useCompetitive();
+  const { gameState, submitGuess, isEliminated } = useCompetitive();
   const [searchQuery, setSearchQuery] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,13 +46,7 @@ export function CompetitiveGuessDialog({
     : [];
 
   const handleSelect = async (countryCode: string) => {
-    if (!selectedCountry || gameState?.status !== "playing") {
-      return;
-    }
-
-    // Check if the guessed country matches the selected country
-    if (countryCode !== selectedCountry) {
-      setError("That's not the country you selected!");
+    if (!selectedCountry || gameState?.status !== "playing" || isEliminated) {
       return;
     }
 
@@ -60,15 +54,27 @@ export function CompetitiveGuessDialog({
     setError(null);
 
     try {
-      const response = await claimCountry(countryCode);
-      if (response.success) {
+      const response = await submitGuess(selectedCountry, countryCode);
+      if (response.correct) {
         setSearchQuery("");
         onOpenChange(false);
+      } else if (response.is_eliminated) {
+        setError(
+          "Wrong guess! You've lost all your lives and been eliminated.",
+        );
+        setTimeout(() => {
+          setSearchQuery("");
+          onOpenChange(false);
+        }, 2000);
+      } else if (response.lives !== undefined) {
+        setError(
+          `Wrong guess! You lost a life. ${response.lives} ${response.lives === 1 ? "life" : "lives"} remaining.`,
+        );
       } else {
-        setError(response.error || "Failed to claim country");
+        setError(response.error || "Failed to submit guess");
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to claim country");
+      setError(err instanceof Error ? err.message : "Failed to submit guess");
     } finally {
       setIsSubmitting(false);
     }
@@ -83,10 +89,14 @@ export function CompetitiveGuessDialog({
   };
 
   const isDisabled =
-    gameState?.status !== "playing" || !selectedCountry || isSubmitting;
+    gameState?.status !== "playing" ||
+    !selectedCountry ||
+    isSubmitting ||
+    isEliminated;
 
-  const placeholder =
-    gameState?.status !== "playing"
+  const placeholder = isEliminated
+    ? "You've been eliminated!"
+    : gameState?.status !== "playing"
       ? "Waiting for game to start..."
       : selectedCountry
         ? "Type the name of the highlighted country..."

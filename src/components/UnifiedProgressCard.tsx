@@ -1,4 +1,4 @@
-import { Crown, User, UserX } from "lucide-react";
+import { Crown, Heart, Skull, User, UserX } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
@@ -39,12 +39,7 @@ export function UnifiedProgressCard({
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Stats row - same for both modes */}
-        <div
-          className={cn(
-            "gap-2 grid text-center",
-            mode === "solo" ? "grid-cols-3" : "grid-cols-2",
-          )}
-        >
+        <div className="gap-2 grid grid-cols-3 text-center">
           <div className="bg-green-50 dark:bg-green-950 p-2 rounded-lg">
             <p className="font-medium text-muted-foreground text-xs">
               {mode === "solo" ? "CORRECT" : "CLAIMED"}
@@ -59,14 +54,12 @@ export function UnifiedProgressCard({
             </p>
             <p className="font-bold text-xl">{myProgress.remainingCount}</p>
           </div>
-          {mode === "solo" && (
-            <div className="bg-red-50 dark:bg-red-950 p-2 rounded-lg">
-              <p className="font-medium text-muted-foreground text-xs">LIVES</p>
-              <div className="flex justify-center pt-1">
-                <LivesDisplay livesRemaining={livesRemaining ?? 0} />
-              </div>
+          <div className="bg-red-50 dark:bg-red-950 p-2 rounded-lg">
+            <p className="font-medium text-muted-foreground text-xs">LIVES</p>
+            <div className="flex justify-center pt-1">
+              <LivesDisplay livesRemaining={livesRemaining ?? 0} />
             </div>
-          )}
+          </div>
         </div>
 
         {/* Overall progress bar */}
@@ -112,6 +105,7 @@ export function UnifiedProgressCard({
                   className={cn(
                     "flex items-center justify-between p-2 rounded-lg",
                     player.isMe && "bg-muted",
+                    player.isEliminated && "opacity-50",
                   )}
                 >
                   <div className="flex items-center gap-2">
@@ -122,7 +116,9 @@ export function UnifiedProgressCard({
                       className="w-3 h-3 rounded-full shrink-0"
                       style={{ backgroundColor: player.color }}
                     />
-                    {player.isConnected ? (
+                    {player.isEliminated ? (
+                      <Skull className="w-4 h-4 text-muted-foreground" />
+                    ) : player.isConnected ? (
                       <User className="w-4 h-4 text-muted-foreground" />
                     ) : (
                       <UserX className="w-4 h-4 text-muted-foreground opacity-50" />
@@ -131,6 +127,7 @@ export function UnifiedProgressCard({
                       className={cn(
                         "font-medium text-sm",
                         !player.isConnected && "opacity-50",
+                        player.isEliminated && "line-through",
                       )}
                     >
                       {player.nickname}
@@ -140,9 +137,26 @@ export function UnifiedProgressCard({
                       <Crown className="w-4 h-4 text-yellow-500" />
                     )}
                   </div>
-                  <span className="text-sm font-bold">
-                    {player.claimedCount}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {player.lives !== undefined && (
+                      <div className="flex items-center gap-0.5">
+                        {Array.from({ length: 3 }).map((_, i) => (
+                          <Heart
+                            key={i}
+                            className={cn(
+                              "w-3 h-3",
+                              i < (player.lives ?? 0)
+                                ? "fill-red-500 text-red-500"
+                                : "fill-gray-300 text-gray-300 dark:fill-gray-600 dark:text-gray-600",
+                            )}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    <span className="text-sm font-bold">
+                      {player.claimedCount}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>

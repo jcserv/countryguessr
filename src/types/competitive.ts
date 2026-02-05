@@ -8,6 +8,8 @@ export interface Player {
   claimedCountries: string[];
   isHost: boolean;
   isConnected: boolean;
+  lives: number;
+  isEliminated: boolean;
 }
 
 // Full competitive game state from server
@@ -35,6 +37,8 @@ export interface GameStatePayload {
       claimed_countries: string[];
       is_host: boolean;
       is_connected: boolean;
+      lives: number;
+      is_eliminated: boolean;
     }
   >;
   claimed_countries: Record<string, string>;
@@ -69,11 +73,30 @@ export interface GameEndedPayload {
     player_id: string;
     nickname: string;
     claimed_count: number;
+    lives_remaining: number;
+    is_eliminated: boolean;
   }>;
 }
 
 export interface TimerTickPayload {
   time_remaining: number;
+}
+
+export interface LifeLostPayload {
+  player_id: string;
+  lives_remaining: number;
+}
+
+export interface PlayerEliminatedPayload {
+  player_id: string;
+}
+
+export interface SubmitGuessResponse {
+  correct: boolean;
+  success?: boolean;
+  lives?: number;
+  is_eliminated?: boolean;
+  error?: string;
 }
 
 // Channel response types

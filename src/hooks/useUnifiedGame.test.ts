@@ -36,6 +36,7 @@ vi.mock("@/hooks/useCountries", () => ({
 
 import { useCompetitive } from "@/contexts/CompetitiveContext";
 import { useGameContext } from "@/contexts/GameContext";
+import type { SubmitGuessResponse } from "@/types/competitive";
 
 import { useCompetitiveGame, useSoloGame } from "./useUnifiedGame";
 
@@ -192,6 +193,8 @@ describe("useCompetitiveGame", () => {
             claimedCountries: [],
             isHost: true,
             isConnected: true,
+            lives: 3,
+            isEliminated: false,
           },
         ],
       ]),
@@ -207,14 +210,22 @@ describe("useCompetitiveGame", () => {
         claimedCountries: [],
         isHost: true,
         isConnected: true,
+        lives: 3,
+        isEliminated: false,
       },
     ],
     playerColors: new Map([["test-player-id", "#ff0000"]]),
     isHost: true,
     myClaimedCountries: [],
+    myLives: 3,
+    isEliminated: false,
     startGame: vi.fn(),
     leaveGame: vi.fn(),
     claimCountry: vi.fn(() => Promise.resolve({ success: true })),
+    submitGuess: vi.fn(
+      (): Promise<SubmitGuessResponse> =>
+        Promise.resolve({ correct: true, success: true }),
+    ),
   };
 
   beforeEach(() => {
@@ -271,20 +282,26 @@ describe("useCompetitiveGame", () => {
     expect(result.current.playerRankings?.[0].isMe).toBe(true);
   });
 
-  it("submitGuess requires matching selected country", async () => {
+  it("submitGuess sends both clicked and guessed country to server", async () => {
     const { result } = renderHook(() =>
       useCompetitiveGame({ selectedCountry: "US", onSelectCountry: vi.fn() }),
     );
 
-    // Guessing a different country should fail
-    const failResult = await result.current.submitGuess("FR");
-    expect(failResult.success).toBe(false);
-    expect(failResult.error).toContain("not the country you selected");
-
-    // Guessing the selected country should succeed
+    // Correct guess
     const successResult = await result.current.submitGuess("US");
     expect(successResult.success).toBe(true);
-    expect(mockCompetitiveContext.claimCountry).toHaveBeenCalledWith("US");
+    expect(mockCompetitiveContext.submitGuess).toHaveBeenCalledWith("US", "US");
+
+    // Wrong guess - still goes to server
+    mockCompetitiveContext.submitGuess.mockResolvedValueOnce({
+      correct: false,
+      lives: 2,
+      is_eliminated: false,
+    });
+    const failResult = await result.current.submitGuess("FR");
+    expect(failResult.success).toBe(false);
+    expect(failResult.error).toContain("lost a life");
+    expect(mockCompetitiveContext.submitGuess).toHaveBeenCalledWith("US", "FR");
   });
 
   it("isCountryAvailable returns true for unclaimed countries", () => {

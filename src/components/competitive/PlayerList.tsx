@@ -1,4 +1,4 @@
-import { Crown, User, UserX } from "lucide-react";
+import { Crown, Heart, Skull, User, UserX } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useCompetitive } from "@/contexts/CompetitiveContext";
@@ -13,8 +13,9 @@ export function PlayerList({ showScores = true }: PlayerListProps) {
   const { playerId } = useSocket();
   const { players, playerColors, gameState } = useCompetitive();
 
-  // Sort players: host first, then by claimed countries (descending), then alphabetically
+  // Sort players: eliminated last, then host first, then by claimed countries (descending), then alphabetically
   const sortedPlayers = [...players].sort((a, b) => {
+    if (a.isEliminated !== b.isEliminated) return a.isEliminated ? 1 : -1;
     if (a.isHost !== b.isHost) return a.isHost ? -1 : 1;
     if (showScores) {
       const aCount = a.claimedCountries.length;
@@ -50,6 +51,7 @@ export function PlayerList({ showScores = true }: PlayerListProps) {
               className={cn(
                 "flex items-center justify-between p-2 rounded-lg",
                 isMe && "bg-muted",
+                player.isEliminated && "opacity-50",
               )}
             >
               <div className="flex items-center gap-2">
@@ -57,7 +59,9 @@ export function PlayerList({ showScores = true }: PlayerListProps) {
                   className="w-3 h-3 rounded-full shrink-0"
                   style={{ backgroundColor: color }}
                 />
-                {player.isConnected ? (
+                {player.isEliminated ? (
+                  <Skull className="w-4 h-4 text-muted-foreground" />
+                ) : player.isConnected ? (
                   <User className="w-4 h-4 text-muted-foreground" />
                 ) : (
                   <UserX className="w-4 h-4 text-muted-foreground opacity-50" />
@@ -66,6 +70,7 @@ export function PlayerList({ showScores = true }: PlayerListProps) {
                   className={cn(
                     "font-medium",
                     !player.isConnected && "opacity-50",
+                    player.isEliminated && "line-through",
                   )}
                 >
                   {player.nickname}
@@ -73,11 +78,28 @@ export function PlayerList({ showScores = true }: PlayerListProps) {
                 </span>
                 {player.isHost && <Crown className="w-4 h-4 text-yellow-500" />}
               </div>
-              {showScores && (
-                <span className="text-sm text-muted-foreground">
-                  {claimedCount}/{totalCountries}
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                {showScores && gameState?.status === "playing" && (
+                  <div className="flex items-center gap-0.5">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <Heart
+                        key={i}
+                        className={cn(
+                          "w-3 h-3",
+                          i < player.lives
+                            ? "fill-red-500 text-red-500"
+                            : "fill-gray-300 text-gray-300 dark:fill-gray-600 dark:text-gray-600",
+                        )}
+                      />
+                    ))}
+                  </div>
+                )}
+                {showScores && (
+                  <span className="text-sm text-muted-foreground">
+                    {claimedCount}/{totalCountries}
+                  </span>
+                )}
+              </div>
             </div>
           );
         })}

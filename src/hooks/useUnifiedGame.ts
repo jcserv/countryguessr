@@ -120,9 +120,11 @@ export function useCompetitiveGame(
     playerColors,
     isHost,
     myClaimedCountries,
+    myLives,
+    isEliminated,
     startGame: competitiveStartGame,
     leaveGame,
-    claimCountry,
+    submitGuess: competitiveSubmitGuess,
     endGame: competitiveEndGame,
   } = useCompetitive();
 
@@ -144,7 +146,7 @@ export function useCompetitiveGame(
   // Map competitive status to unified status
   const status: UnifiedGameStatus = gameState?.status ?? "idle";
 
-  // Build player rankings sorted by claimed count
+  // Build player rankings sorted by claimed count, eliminated last
   const playerRankings: PlayerProgress[] = useMemo(() => {
     return players
       .map((player) => ({
@@ -154,8 +156,13 @@ export function useCompetitiveGame(
         color: playerColors.get(player.id) || "#6b7280",
         isMe: player.id === playerId,
         isConnected: player.isConnected,
+        lives: player.lives,
+        isEliminated: player.isEliminated,
       }))
-      .sort((a, b) => b.claimedCount - a.claimedCount);
+      .sort((a, b) => {
+        if (a.isEliminated !== b.isEliminated) return a.isEliminated ? 1 : -1;
+        return b.claimedCount - a.claimedCount;
+      });
   }, [players, playerColors, playerId]);
 
   // Calculate regional progress for my claimed countries
@@ -164,19 +171,36 @@ export function useCompetitiveGame(
     return calculateRegionProgress(countries, myClaimedSet);
   }, [countries, myClaimedCountries]);
 
-  // Wrap claimCountry to match unified interface
+  // Wrap submitGuess to match unified interface
   const submitGuess = useCallback(
     async (code: string): Promise<GuessResult> => {
-      // In competitive mode, check if the guessed country matches selection
-      if (code !== selectedCountry) {
+      if (!selectedCountry) {
+        return { success: false, error: "No country selected" };
+      }
+      const response = await competitiveSubmitGuess(selectedCountry, code);
+      if (response.correct) {
+        return { success: true };
+      }
+      if (response.is_eliminated) {
         return {
           success: false,
-          error: "That's not the country you selected!",
+          error: "Wrong guess! You've lost all your lives and been eliminated.",
+          isEliminated: true,
         };
       }
-      return claimCountry(code);
+      if (response.lives !== undefined) {
+        return {
+          success: false,
+          error: `Wrong guess! You lost a life. ${response.lives} ${response.lives === 1 ? "life" : "lives"} remaining.`,
+          livesRemaining: response.lives,
+        };
+      }
+      return {
+        success: false,
+        error: response.error || "Failed to submit guess",
+      };
     },
-    [claimCountry, selectedCountry],
+    [competitiveSubmitGuess, selectedCountry],
   );
 
   // Check if country is available (not yet claimed by anyone)
@@ -213,6 +237,8 @@ export function useCompetitiveGame(
     mode: "competitive",
     status,
     timeRemaining: gameState?.timeRemaining ?? null,
+    livesRemaining: myLives,
+    isEliminated,
     countries,
     countryCentroids,
     loading,

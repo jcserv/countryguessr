@@ -256,6 +256,7 @@ function GameScreenLayout({
             countries={game.countries}
             isCountryAvailable={game.isCountryAvailable}
             submitGuess={game.submitGuess}
+            isEliminated={game.isEliminated}
           />
         </div>
       </div>
