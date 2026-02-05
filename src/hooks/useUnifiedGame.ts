@@ -123,6 +123,7 @@ export function useCompetitiveGame(
     startGame: competitiveStartGame,
     leaveGame,
     claimCountry,
+    endGame: competitiveEndGame,
   } = useCompetitive();
 
   // Load countries for competitive mode
@@ -230,6 +231,7 @@ export function useCompetitiveGame(
     submitGuess,
     startGame: competitiveStartGame,
     leaveGame,
+    endGame: isHost ? competitiveEndGame : undefined,
     isCountryAvailable,
     getCountryOwner,
   };

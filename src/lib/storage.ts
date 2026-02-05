@@ -3,8 +3,10 @@ import { COMPETITIVE_STORAGE_KEYS } from "@/types/competitive";
 import type {
   CompletedGame,
   CompletedGameV1,
+  CompletedGameV2,
   GameHistory,
   GameHistoryV1,
+  GameHistoryV2,
   StoredGameState,
   StoredGameStateV1,
 } from "@/types/game";
@@ -90,13 +92,24 @@ export function saveCompletedGame(game: CompletedGame): void {
 }
 
 /**
- * Migrates a v1 completed game to v2 format
+ * Migrates a v1 completed game to v3 format
  */
-function migrateGameV1ToV2(game: CompletedGameV1): CompletedGame {
+function migrateGameV1ToV3(game: CompletedGameV1): CompletedGame {
   return {
     ...game,
+    mode: "solo" as const,
     guessedCountryCodes: [],
     wrongGuesses: [],
+  };
+}
+
+/**
+ * Migrates a v2 completed game to v3 format
+ */
+function migrateGameV2ToV3(game: CompletedGameV2): CompletedGame {
+  return {
+    ...game,
+    mode: "solo" as const,
   };
 }
 
@@ -107,7 +120,7 @@ export function loadGameHistory(): GameHistory {
   try {
     const stored = localStorage.getItem(STORAGE_KEYS.GAME_HISTORY);
     if (!stored) {
-      return { version: 2, games: [] };
+      return { version: 3, games: [] };
     }
 
     const parsed = JSON.parse(stored);
@@ -115,26 +128,39 @@ export function loadGameHistory(): GameHistory {
     // Handle v1 migration
     if (parsed.version === 1) {
       const v1History = parsed as GameHistoryV1;
-      const migratedGames = v1History.games.map(migrateGameV1ToV2);
-      const v2History: GameHistory = { version: 2, games: migratedGames };
+      const migratedGames = v1History.games.map(migrateGameV1ToV3);
+      const v3History: GameHistory = { version: 3, games: migratedGames };
       // Save migrated history
       localStorage.setItem(
         STORAGE_KEYS.GAME_HISTORY,
-        JSON.stringify(v2History),
+        JSON.stringify(v3History),
       );
-      return v2History;
+      return v3History;
+    }
+
+    // Handle v2 migration
+    if (parsed.version === 2) {
+      const v2History = parsed as GameHistoryV2;
+      const migratedGames = v2History.games.map(migrateGameV2ToV3);
+      const v3History: GameHistory = { version: 3, games: migratedGames };
+      // Save migrated history
+      localStorage.setItem(
+        STORAGE_KEYS.GAME_HISTORY,
+        JSON.stringify(v3History),
+      );
+      return v3History;
     }
 
     // Validate version
-    if (parsed.version !== 2) {
+    if (parsed.version !== 3) {
       console.warn("Unknown game history version, resetting");
-      return { version: 2, games: [] };
+      return { version: 3, games: [] };
     }
 
     return parsed as GameHistory;
   } catch (error) {
     console.error("Failed to load game history:", error);
-    return { version: 2, games: [] };
+    return { version: 3, games: [] };
   }
 }
 

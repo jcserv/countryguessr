@@ -21,6 +21,7 @@ import {
   safeParsePayload,
   TimerTickPayloadSchema,
 } from "@/lib/schemas";
+import { saveCompletedGame } from "@/lib/storage";
 import type {
   ClaimCountryResponse,
   CompetitiveGameState,
@@ -29,6 +30,7 @@ import type {
   GameStatePayload,
   Player,
 } from "@/types/competitive";
+import type { CompletedGame } from "@/types/game";
 import type { UnifiedGameStatus } from "@/types/unified-game";
 
 interface CompetitiveContextValue {
@@ -49,6 +51,7 @@ interface CompetitiveContextValue {
   leaveGame: () => void;
   startGame: () => Promise<void>;
   claimCountry: (countryCode: string) => Promise<ClaimCountryResponse>;
+  endGame: () => Promise<void>;
 }
 
 export const CompetitiveContext = createContext<CompetitiveContextValue | null>(
@@ -254,8 +257,44 @@ export function CompetitiveProvider({
         "game_ended",
       );
       if (!data) return;
+
       setGameState((prev) => {
         if (!prev) return prev;
+
+        // Build and save history entry
+        const timeElapsed = prev.startedAt
+          ? Math.floor((data.ended_at - prev.startedAt) / 1000)
+          : 0;
+
+        const myPlayer = prev.players.get(playerId);
+        const rankings = data.rankings.map((r) => ({
+          playerId: r.player_id,
+          nickname: r.nickname,
+          claimedCount: r.claimed_count,
+          isMe: r.player_id === playerId,
+        }));
+
+        const myRanking = rankings.find((r) => r.isMe);
+        const isWinner =
+          rankings.length > 0 && rankings[0].playerId === playerId;
+
+        const completedGame: CompletedGame = {
+          mode: "competitive",
+          completedAt: data.ended_at,
+          result: isWinner ? "won" : "lost",
+          correctGuesses: myRanking?.claimedCount || 0,
+          totalCountries: 178,
+          timeElapsed,
+          guessedCountryCodes: myPlayer?.claimedCountries || [],
+          gameId: prev.gameId,
+          myPlayerId: playerId,
+          myNickname: myPlayer?.nickname || "Unknown",
+          playerCount: prev.players.size,
+          rankings,
+        };
+
+        saveCompletedGame(completedGame);
+
         return {
           ...prev,
           status: "finished" as CompetitiveGameStatus,
@@ -356,6 +395,10 @@ export function CompetitiveProvider({
     [push],
   );
 
+  const endGame = useCallback(async () => {
+    await push("end_game", {});
+  }, [push]);
+
   const value: CompetitiveContextValue = useMemo(
     () => ({
       gameId,
@@ -370,6 +413,7 @@ export function CompetitiveProvider({
       leaveGame,
       startGame,
       claimCountry,
+      endGame,
     }),
     [
       gameId,
@@ -384,6 +428,7 @@ export function CompetitiveProvider({
       leaveGame,
       startGame,
       claimCountry,
+      endGame,
     ],
   );
 

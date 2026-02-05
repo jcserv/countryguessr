@@ -212,13 +212,24 @@ function GameScreenLayout({
                   End Quiz
                 </Button>
               ) : (
-                <Button
-                  variant="destructive"
-                  onClick={handleLeave}
-                  className="flex-1"
-                >
-                  Leave
-                </Button>
+                <>
+                  {game.isHost && game.endGame && (
+                    <Button
+                      variant="destructive"
+                      onClick={game.endGame}
+                      className="flex-1"
+                    >
+                      End Game
+                    </Button>
+                  )}
+                  <Button
+                    variant="outline"
+                    onClick={handleLeave}
+                    className="flex-1"
+                  >
+                    Leave
+                  </Button>
+                </>
               )}
             </div>
 

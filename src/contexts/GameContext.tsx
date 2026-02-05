@@ -110,6 +110,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
         );
 
         saveCompletedGame({
+          mode: "solo",
           completedAt: Date.now(),
           result: "lost",
           correctGuesses: savedGame.guessedCountryCodes.length,
@@ -196,6 +197,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       );
 
       saveCompletedGame({
+        mode: "solo",
         completedAt: Date.now(),
         result,
         correctGuesses: guessedCountries.size,

@@ -165,6 +165,7 @@ describe("storage", () => {
   describe("saveCompletedGame", () => {
     it("appends game to history", () => {
       const game: CompletedGame = {
+        mode: "solo",
         completedAt: Date.now(),
         result: "won",
         correctGuesses: 178,
@@ -180,16 +181,17 @@ describe("storage", () => {
       const stored = JSON.parse(
         localStorage.getItem(STORAGE_KEYS.GAME_HISTORY) || "{}",
       );
-      expect(stored.version).toBe(2);
+      expect(stored.version).toBe(3);
       expect(stored.games).toHaveLength(1);
       expect(stored.games[0]).toEqual(game);
     });
 
     it("appends to existing history", () => {
       const existingHistory = {
-        version: 2,
+        version: 3,
         games: [
           {
+            mode: "solo",
             completedAt: Date.now() - 10000,
             result: "lost",
             correctGuesses: 50,
@@ -207,6 +209,7 @@ describe("storage", () => {
       );
 
       const newGame: CompletedGame = {
+        mode: "solo",
         completedAt: Date.now(),
         result: "won",
         correctGuesses: 178,
@@ -229,10 +232,10 @@ describe("storage", () => {
   describe("loadGameHistory", () => {
     it("returns empty history when no data exists", () => {
       const result = loadGameHistory();
-      expect(result).toEqual({ version: 2, games: [] });
+      expect(result).toEqual({ version: 3, games: [] });
     });
 
-    it("migrates v1 to v2 format", () => {
+    it("migrates v1 to v3 format", () => {
       const v1History = {
         version: 1,
         games: [
@@ -253,11 +256,42 @@ describe("storage", () => {
 
       const result = loadGameHistory();
 
-      expect(result.version).toBe(2);
+      expect(result.version).toBe(3);
+      expect(result.games[0]).toHaveProperty("mode");
       expect(result.games[0]).toHaveProperty("guessedCountryCodes");
       expect(result.games[0]).toHaveProperty("wrongGuesses");
+      expect(result.games[0].mode).toEqual("solo");
       expect(result.games[0].guessedCountryCodes).toEqual([]);
       expect(result.games[0].wrongGuesses).toEqual([]);
+    });
+
+    it("migrates v2 to v3 format", () => {
+      const v2History = {
+        version: 2,
+        games: [
+          {
+            completedAt: Date.now(),
+            result: "won",
+            correctGuesses: 100,
+            totalCountries: 178,
+            timeElapsed: 1200,
+            livesRemaining: 1,
+            guessedCountryCodes: ["US", "GB"],
+            wrongGuesses: [],
+          },
+        ],
+      };
+      localStorage.setItem(
+        STORAGE_KEYS.GAME_HISTORY,
+        JSON.stringify(v2History),
+      );
+
+      const result = loadGameHistory();
+
+      expect(result.version).toBe(3);
+      expect(result.games[0]).toHaveProperty("mode");
+      expect(result.games[0].mode).toEqual("solo");
+      expect(result.games[0].guessedCountryCodes).toEqual(["US", "GB"]);
     });
 
     it("returns empty for unknown versions", () => {
@@ -270,7 +304,7 @@ describe("storage", () => {
       const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
       const result = loadGameHistory();
 
-      expect(result).toEqual({ version: 2, games: [] });
+      expect(result).toEqual({ version: 3, games: [] });
       consoleSpy.mockRestore();
     });
 
@@ -282,7 +316,7 @@ describe("storage", () => {
         .mockImplementation(() => {});
       const result = loadGameHistory();
 
-      expect(result).toEqual({ version: 2, games: [] });
+      expect(result).toEqual({ version: 3, games: [] });
       expect(consoleSpy).toHaveBeenCalled();
       consoleSpy.mockRestore();
     });

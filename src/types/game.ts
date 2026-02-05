@@ -67,17 +67,46 @@ export interface CompletedGameV1 {
   livesRemaining: number;
 }
 
-// V2 completed game with detailed data
-export interface CompletedGame {
+// V2 completed game with detailed data (legacy, now migrated to V3)
+export interface CompletedGameV2 {
   completedAt: number;
   result: "won" | "lost";
   correctGuesses: number;
   totalCountries: number;
   timeElapsed: number;
   livesRemaining: number;
-  // New fields for expanded view
   guessedCountryCodes: string[];
   wrongGuesses: WrongGuess[];
+}
+
+// V3 completed game with mode support
+export interface CompletedGame {
+  // All modes
+  completedAt: number;
+  result: "won" | "lost";
+  correctGuesses: number;
+  totalCountries: number;
+  timeElapsed: number;
+  guessedCountryCodes: string[];
+
+  // Mode discriminator
+  mode: "solo" | "competitive";
+
+  // Solo-only fields (optional for competitive)
+  livesRemaining?: number;
+  wrongGuesses?: WrongGuess[];
+
+  // Competitive-only fields (optional for solo)
+  gameId?: string;
+  myPlayerId?: string;
+  myNickname?: string;
+  playerCount?: number;
+  rankings?: Array<{
+    playerId: string;
+    nickname: string;
+    claimedCount: number;
+    isMe: boolean;
+  }>;
 }
 
 export interface GameHistoryV1 {
@@ -85,7 +114,12 @@ export interface GameHistoryV1 {
   games: CompletedGameV1[];
 }
 
-export interface GameHistory {
+export interface GameHistoryV2 {
   version: 2;
+  games: CompletedGameV2[];
+}
+
+export interface GameHistory {
+  version: 3;
   games: CompletedGame[];
 }

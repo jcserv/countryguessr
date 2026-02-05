@@ -1,7 +1,15 @@
 import { useMemo, useState } from "react";
 
-import { ChevronDown, ChevronUp, Eye, EyeOff } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Eye,
+  EyeOff,
+  Trophy,
+  Users,
+} from "lucide-react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
@@ -64,8 +72,12 @@ export function GameHistoryCard({ game }: GameHistoryCardProps) {
     new Set(),
   );
 
+  const isSolo = game.mode === "solo";
+  const isCompetitive = game.mode === "competitive";
+
   const hasDetailedData =
-    game.guessedCountryCodes.length > 0 || game.wrongGuesses.length > 0;
+    game.guessedCountryCodes.length > 0 ||
+    (game.wrongGuesses && game.wrongGuesses.length > 0);
 
   const guessedSet = useMemo(
     () => new Set(game.guessedCountryCodes),
@@ -119,6 +131,12 @@ export function GameHistoryCard({ game }: GameHistoryCardProps) {
       <CardHeader className="p-4 pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4 flex-wrap">
+            <Badge
+              variant={isSolo ? "secondary" : "default"}
+              className="text-xs"
+            >
+              {isSolo ? "Solo" : "Competitive"}
+            </Badge>
             <span
               className={cn(
                 "font-semibold",
@@ -154,21 +172,33 @@ export function GameHistoryCard({ game }: GameHistoryCardProps) {
             </span>
           </div>
           <div className="flex items-center gap-1">
-            <span className="text-zinc-500 dark:text-zinc-400">Guessed:</span>
+            <span className="text-zinc-500 dark:text-zinc-400">
+              {isSolo ? "Guessed:" : "Claimed:"}
+            </span>
             <span className="font-mono">
               {game.correctGuesses}/{game.totalCountries}
             </span>
           </div>
-          <div className="flex items-center gap-1">
-            <span className="text-zinc-500 dark:text-zinc-400">Lives:</span>
-            <span className="font-mono">
-              {game.livesRemaining}/{GAME_CONFIG.INITIAL_LIVES}
-            </span>
-            <span className="text-red-500">
-              {"❤️".repeat(game.livesRemaining)}
-              {"🖤".repeat(GAME_CONFIG.INITIAL_LIVES - game.livesRemaining)}
-            </span>
-          </div>
+          {isSolo && game.livesRemaining !== undefined && (
+            <div className="flex items-center gap-1">
+              <span className="text-zinc-500 dark:text-zinc-400">Lives:</span>
+              <span className="font-mono">
+                {game.livesRemaining}/{GAME_CONFIG.INITIAL_LIVES}
+              </span>
+              <span className="text-red-500">
+                {"❤️".repeat(game.livesRemaining)}
+                {"🖤".repeat(GAME_CONFIG.INITIAL_LIVES - game.livesRemaining)}
+              </span>
+            </div>
+          )}
+          {isCompetitive && game.playerCount && (
+            <div className="flex items-center gap-1">
+              <Users className="h-4 w-4 text-zinc-500" />
+              <span className="text-zinc-500 dark:text-zinc-400">
+                {game.playerCount} players
+              </span>
+            </div>
+          )}
         </div>
       </CardHeader>
 
@@ -258,8 +288,44 @@ export function GameHistoryCard({ game }: GameHistoryCardProps) {
                 </div>
               </div>
 
-              {/* Wrong Guesses */}
-              {game.wrongGuesses.length > 0 && (
+              {/* Rankings (Competitive only) */}
+              {isCompetitive && game.rankings && game.rankings.length > 0 && (
+                <div>
+                  <h4 className="font-semibold mb-2 text-sm flex items-center gap-2">
+                    <Trophy className="h-4 w-4" />
+                    Final Rankings
+                  </h4>
+                  <div className="space-y-1">
+                    {game.rankings.map((player, idx) => (
+                      <div
+                        key={player.playerId}
+                        className={cn(
+                          "flex items-center justify-between px-2 py-1 rounded text-sm",
+                          player.isMe
+                            ? "bg-blue-100 dark:bg-blue-900/30"
+                            : "bg-zinc-100 dark:bg-zinc-800",
+                        )}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-zinc-500 w-5">
+                            #{idx + 1}
+                          </span>
+                          <span className={cn(player.isMe && "font-semibold")}>
+                            {player.nickname}
+                            {player.isMe && " (You)"}
+                          </span>
+                        </div>
+                        <span className="font-mono">
+                          {player.claimedCount} countries
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Wrong Guesses (Solo only) */}
+              {isSolo && game.wrongGuesses && game.wrongGuesses.length > 0 && (
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <h4 className="font-semibold text-sm">

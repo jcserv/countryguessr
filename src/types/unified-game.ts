@@ -75,7 +75,7 @@ export interface UnifiedGameActions {
   startGame: () => void | Promise<void>;
   pauseGame?: () => void; // Solo only
   resumeGame?: () => void; // Solo only
-  endGame?: () => void; // Solo only
+  endGame?: () => void | Promise<void>; // Solo and Competitive (host only)
   leaveGame?: () => void; // Competitive only
   isCountryAvailable: (code: string) => boolean;
   getCountryOwner: (code: string) => CountryOwner | null;
