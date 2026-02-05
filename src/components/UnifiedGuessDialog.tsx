@@ -74,6 +74,8 @@ export function UnifiedGuessDialog({
         }, 2000);
       } else {
         setError(result.error || "Incorrect guess");
+        // Ensure the dialog stays open after a failed guess.
+        onOpenChange(true);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to submit guess");

@@ -45,9 +45,30 @@ export function useSoloGame(): UnifiedGame {
   const submitGuess = useCallback(
     async (code: string): Promise<GuessResult> => {
       const success = soloSubmitGuess(code);
-      return { success };
+      if (success) {
+        return { success: true };
+      }
+
+      const newLives = Math.max(livesRemaining - 1, 0);
+
+      if (newLives <= 0) {
+        return {
+          success: false,
+          error: "Wrong guess! You've lost all your lives and been eliminated.",
+          isEliminated: true,
+          livesRemaining: newLives,
+        };
+      }
+
+      return {
+        success: false,
+        error: `Wrong guess! You lost a life. ${newLives} ${
+          newLives === 1 ? "life" : "lives"
+        } remaining.`,
+        livesRemaining: newLives,
+      };
     },
-    [soloSubmitGuess],
+    [soloSubmitGuess, livesRemaining],
   );
 
   // Check if country is available (not yet guessed)
