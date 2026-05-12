@@ -1,0 +1,11 @@
+# Defer installation of newly published package versions to mitigate
+# supply-chain attacks (e.g. compromised maintainer credentials).
+# Value is in minutes — 4320 = 3 days.
+# See: https://pnpm.io/settings#minimumreleaseage
+minimumReleaseAge: 4320
+
+# pnpm 10 ignores dependency install scripts by default; allowlist the
+# packages that legitimately need them (e.g. binary downloaders).
+onlyBuiltDependencies:
+  - cypress
+  - esbuild
