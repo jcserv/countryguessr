@@ -1,0 +1,5 @@
+# Defer installation of newly published package versions to mitigate
+# supply-chain attacks (e.g. compromised maintainer credentials).
+# Value is in minutes — 4320 = 3 days.
+# See: https://pnpm.io/settings#minimumreleaseage
+minimumReleaseAge: 4320
