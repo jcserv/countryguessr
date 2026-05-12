@@ -27,7 +27,7 @@
     "cmdk": "^1.1.1",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.162.0",
-    "phoenix": "^1.8.3",
+    "phoenix": "^1.8.7",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
     "react-leaflet": "^5.0.0",
