@@ -6,6 +6,10 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 10
     groups:
+      react:
+        patterns:
+          - "react"
+          - "react-dom"
       radix-ui:
         patterns:
           - "@radix-ui/*"
