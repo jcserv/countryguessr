@@ -1,7 +1,8 @@
 import { useState } from "react";
+import { FaGithub } from "react-icons/fa";
 
 import { Link, useLocation } from "@tanstack/react-router";
-import { BarChart2, Gamepad2, Github, Menu, Moon, Sun } from "lucide-react";
+import { BarChart2, Gamepad2, Menu, Moon, Sun } from "lucide-react";
 
 import { ModeToggle } from "@/components";
 import { useTheme } from "@/components/theme-provider";
@@ -82,7 +83,7 @@ export const Header: React.FC = () => {
               window.open("https://github.com/jcserv/countryguessr", "_blank");
             }}
           >
-            <Github className="w-4 h-4" />
+            <FaGithub className="w-4 h-4" />
           </Button>
           <ModeToggle />
         </div>
@@ -142,7 +143,7 @@ export const Header: React.FC = () => {
                   setMobileMenuOpen(false);
                 }}
               >
-                <Github className="w-4 h-4" />
+                <FaGithub className="w-4 h-4" />
                 GitHub
               </button>
             </nav>
