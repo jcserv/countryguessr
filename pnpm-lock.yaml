@@ -42,8 +42,8 @@ importers:
         specifier: ^1.16.0
         version: 1.16.0(react@19.2.7)
       phoenix:
-        specifier: ^1.8.7
-        version: 1.8.7
+        specifier: ^1.8.8
+        version: 1.8.8
       react:
         specifier: ^19.2.7
         version: 19.2.7
@@ -2716,8 +2716,8 @@ packages:
   performance-now@2.1.0:
     resolution: {integrity: sha512-7EAHlyLHI56VEIdK57uwHdHKIaAGbnXPiw0yWbarQZOKaKpvUIgW0jWRVLiatnM+XXlSwsanIBH/hzGMJulMow==}
 
-  phoenix@1.8.7:
-    resolution: {integrity: sha512-mQfiO4PNEjToj5iUfka6OjRWtCNe+0JsVrW6x+q94kPN8VX8taulJPTa4/u2ZPb2b8+hzmBAvMxQWnuTc0T4KQ==}
+  phoenix@1.8.8:
+    resolution: {integrity: sha512-dHbnj+eERgKqDu1dACsJNp4JWxtWO+598STHaGPhzA5DqNG4jeq5WmkjXsaMYsDMFEsygtFovdrhVtDHTN7V+A==}
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -6186,7 +6186,7 @@ snapshots:
 
   performance-now@2.1.0: {}
 
-  phoenix@1.8.7: {}
+  phoenix@1.8.8: {}
 
   picocolors@1.1.1: {}
 
